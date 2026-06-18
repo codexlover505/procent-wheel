@@ -1,0 +1,1167 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Процент — колесо риска</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #090b11;
+      --panel: rgba(20, 24, 35, .78);
+      --panel-strong: #151a26;
+      --line: rgba(255, 255, 255, .09);
+      --text: #f7f8fc;
+      --muted: #9198aa;
+      --accent: #beff52;
+      --accent-2: #61f4c8;
+      --danger: #ff5964;
+      --danger-2: #ff836f;
+      --chance-deg: 90deg;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      overflow-x: hidden;
+      background:
+        radial-gradient(circle at 14% 10%, rgba(190, 255, 82, .11), transparent 30rem),
+        radial-gradient(circle at 88% 88%, rgba(97, 244, 200, .09), transparent 34rem),
+        var(--bg);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: .22;
+      background-image: linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
+      background-size: 44px 44px;
+      mask-image: linear-gradient(to bottom, black, transparent 80%);
+    }
+
+    button, input { font: inherit; }
+
+    .app {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 24px 0 36px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      margin-bottom: 22px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 850;
+      letter-spacing: -.03em;
+    }
+
+    .logo {
+      display: grid;
+      place-items: center;
+      width: 40px;
+      height: 40px;
+      border-radius: 13px;
+      color: #10140a;
+      background: var(--accent);
+      box-shadow: 0 0 28px rgba(190, 255, 82, .2);
+      font-size: 21px;
+    }
+
+    .account-area { display: flex; align-items: center; gap: 12px; }
+    .balance-wrap { text-align: right; }
+    .topup-btn {
+      min-height: 40px;
+      padding: 0 14px;
+      border: 1px solid rgba(190,255,82,.28);
+      border-radius: 13px;
+      color: var(--accent);
+      background: rgba(190,255,82,.07);
+      font-size: 13px;
+      font-weight: 850;
+      cursor: pointer;
+      transition: .2s ease;
+    }
+    .topup-btn:hover { border-color: rgba(190,255,82,.55); background: rgba(190,255,82,.12); transform: translateY(-1px); }
+    .eyebrow {
+      margin: 0 0 4px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+
+    .balance {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+      font-size: clamp(22px, 3vw, 30px);
+      font-weight: 850;
+      letter-spacing: -.04em;
+    }
+
+    .coin {
+      display: inline-grid;
+      place-items: center;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      color: #312b00;
+      background: #ffd84a;
+      font-size: 13px;
+      box-shadow: inset 0 0 0 3px rgba(255,255,255,.26);
+    }
+
+    .game-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.35fr) minmax(310px, .65fr);
+      gap: 18px;
+    }
+
+    .card {
+      position: relative;
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      background: var(--panel);
+      box-shadow: 0 26px 70px rgba(0,0,0,.28);
+      backdrop-filter: blur(18px);
+    }
+
+    .wheel-card {
+      display: grid;
+      min-height: 650px;
+      place-items: center;
+      overflow: hidden;
+      padding: 60px 32px 36px;
+    }
+
+    .wheel-card::before {
+      content: "";
+      position: absolute;
+      width: 520px;
+      height: 520px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(190,255,82,.09), transparent 67%);
+      filter: blur(10px);
+    }
+
+    .pointer {
+      position: absolute;
+      z-index: 5;
+      top: 39px;
+      left: 50%;
+      width: 46px;
+      height: 60px;
+      transform: translateX(-50%);
+      filter: drop-shadow(0 10px 10px rgba(0,0,0,.55));
+    }
+
+    .pointer::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      clip-path: polygon(50% 100%, 0 0, 100% 0);
+      background: #fff;
+      border-radius: 7px;
+    }
+
+    .wheel-shell {
+      position: relative;
+      z-index: 2;
+      width: min(500px, 76vw);
+      aspect-ratio: 1;
+      border-radius: 50%;
+      padding: 13px;
+      background: linear-gradient(145deg, #363e4d, #151922 55%, #3a4251);
+      box-shadow: 0 34px 70px rgba(0,0,0,.48), inset 0 0 0 1px rgba(255,255,255,.18);
+    }
+
+    .wheel {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      overflow: hidden;
+      background:
+        repeating-conic-gradient(from 0deg, transparent 0 14deg, rgba(255,255,255,.035) 14deg 15deg),
+        conic-gradient(from 0deg, var(--accent-2) 0 var(--chance-deg), var(--danger) var(--chance-deg) 360deg);
+      box-shadow: inset 0 0 44px rgba(0,0,0,.25), inset 0 0 0 2px rgba(255,255,255,.16);
+      transition-property: transform;
+      transition-duration: var(--spin-duration, 4.8s);
+      transition-timing-function: var(--spin-easing, cubic-bezier(.12,.68,.08,1));
+      will-change: transform;
+    }
+
+    .wheel::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background: radial-gradient(circle, transparent 49%, rgba(0,0,0,.12) 76%, rgba(255,255,255,.12));
+    }
+
+    .hub {
+      position: absolute;
+      z-index: 4;
+      top: 50%;
+      left: 50%;
+      display: grid;
+      place-items: center;
+      width: 156px;
+      height: 156px;
+      transform: translate(-50%, -50%);
+      border: 1px solid rgba(255,255,255,.15);
+      border-radius: 50%;
+      background: rgba(13,16,23,.93);
+      box-shadow: 0 12px 35px rgba(0,0,0,.38), inset 0 0 0 8px rgba(255,255,255,.025);
+      text-align: center;
+    }
+
+    .hub strong {
+      display: block;
+      margin-top: 3px;
+      font-size: 34px;
+      letter-spacing: -.055em;
+    }
+
+    .wheel-legend {
+      z-index: 2;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px 20px;
+      margin-top: 24px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .legend-item { display: flex; align-items: center; gap: 8px; }
+    .dot { width: 9px; height: 9px; border-radius: 50%; }
+    .dot.win { background: var(--accent-2); box-shadow: 0 0 12px rgba(97,244,200,.5); }
+    .dot.lose { background: var(--danger); box-shadow: 0 0 12px rgba(255,89,100,.45); }
+    .sound-toggle, .speed-toggle {
+      padding: 5px 10px;
+      border: 1px solid var(--line);
+      border-radius: 99px;
+      color: var(--muted);
+      background: rgba(255,255,255,.035);
+      font-size: 12px;
+      cursor: pointer;
+      transition: .2s ease;
+    }
+    .sound-toggle:hover, .speed-toggle:hover { color: var(--text); border-color: rgba(255,255,255,.2); }
+    .speed-toggle[aria-pressed="true"] {
+      color: #151a0a;
+      border-color: var(--accent);
+      background: var(--accent);
+      box-shadow: 0 0 16px rgba(190,255,82,.16);
+    }
+
+    .controls-card {
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+      padding: 28px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 30px;
+      line-height: 1.05;
+      letter-spacing: -.045em;
+    }
+
+    .subtitle {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.55;
+    }
+
+    .field-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    label { font-size: 14px; font-weight: 750; }
+    .field-note { color: var(--muted); font-size: 12px; }
+
+    .money-input {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      height: 58px;
+      padding: 0 16px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: rgba(5,7,11,.45);
+    }
+
+    .money-input:focus-within {
+      border-color: rgba(190,255,82,.55);
+      box-shadow: 0 0 0 3px rgba(190,255,82,.08);
+    }
+
+    .money-input input {
+      width: 100%;
+      min-width: 0;
+      border: 0;
+      outline: 0;
+      color: var(--text);
+      background: transparent;
+      font-size: 22px;
+      font-weight: 800;
+    }
+
+    .quick-bets { display: grid; grid-template-columns: repeat(4, 1fr); gap: 7px; margin-top: 9px; }
+    .chip {
+      padding: 8px 6px;
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      color: var(--muted);
+      background: rgba(255,255,255,.025);
+      font-size: 12px;
+      font-weight: 750;
+      cursor: pointer;
+      transition: .2s ease;
+    }
+    .chip:hover { color: var(--text); border-color: rgba(255,255,255,.22); background: rgba(255,255,255,.06); }
+
+    .chance-value { color: var(--accent); font-size: 18px; font-weight: 850; }
+    input[type="range"] {
+      width: 100%;
+      height: 7px;
+      appearance: none;
+      border-radius: 99px;
+      outline: none;
+      background: linear-gradient(to right, var(--accent) 0 var(--range-fill), rgba(255,255,255,.1) var(--range-fill) 100%);
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      width: 22px;
+      height: 22px;
+      appearance: none;
+      border: 5px solid var(--accent);
+      border-radius: 50%;
+      background: #151922;
+      box-shadow: 0 0 0 5px rgba(190,255,82,.08), 0 4px 14px rgba(0,0,0,.5);
+      cursor: grab;
+    }
+    .range-labels { display: flex; justify-content: space-between; margin-top: 9px; color: #687083; font-size: 11px; }
+
+    .chance-number-field { margin-top: 14px; }
+    .chance-number-field label {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 650;
+    }
+    .chance-number-input {
+      display: flex;
+      align-items: center;
+      height: 48px;
+      padding: 0 14px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(5,7,11,.45);
+    }
+    .chance-number-input:focus-within {
+      border-color: rgba(190,255,82,.55);
+      box-shadow: 0 0 0 3px rgba(190,255,82,.08);
+    }
+    .chance-number-input.invalid { border-color: rgba(255,89,100,.7); }
+    .chance-number-input input {
+      width: 100%;
+      min-width: 0;
+      border: 0;
+      outline: 0;
+      color: var(--text);
+      background: transparent;
+      font-size: 17px;
+      font-weight: 800;
+    }
+    .chance-number-input span { color: var(--accent); font-weight: 850; }
+
+    .payout-box {
+      display: grid;
+      grid-template-columns: 1fr minmax(130px, 165px);
+      align-items: center;
+      gap: 8px 14px;
+      padding: 16px;
+      border: 1px solid rgba(97,244,200,.16);
+      border-radius: 16px;
+      background: linear-gradient(135deg, rgba(97,244,200,.075), rgba(190,255,82,.025));
+    }
+    .payout-box.invalid { border-color: rgba(255,89,100,.7); }
+    .payout-copy span { display: block; color: var(--muted); font-size: 13px; }
+    .payout-copy small { display: block; margin-top: 5px; color: #6f7789; font-size: 10px; line-height: 1.35; }
+    .payout-input {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      min-width: 0;
+      padding: 10px 12px;
+      border: 1px solid rgba(97,244,200,.18);
+      border-radius: 12px;
+      background: rgba(5,7,11,.38);
+    }
+    .payout-input:focus-within {
+      border-color: rgba(97,244,200,.65);
+      box-shadow: 0 0 0 3px rgba(97,244,200,.07);
+    }
+    .payout-input .coin { flex: 0 0 auto; width: 21px; height: 21px; font-size: 11px; }
+    .payout-input input {
+      width: 100%;
+      min-width: 0;
+      border: 0;
+      outline: 0;
+      color: var(--accent-2);
+      background: transparent;
+      font-size: 18px;
+      font-weight: 850;
+      letter-spacing: -.03em;
+    }
+
+    .spin-btn {
+      position: relative;
+      min-height: 62px;
+      overflow: hidden;
+      border: 0;
+      border-radius: 17px;
+      color: #121708;
+      background: linear-gradient(110deg, var(--accent), #dfff55);
+      box-shadow: 0 14px 34px rgba(190,255,82,.17);
+      font-size: 16px;
+      font-weight: 900;
+      letter-spacing: .015em;
+      cursor: pointer;
+      transition: transform .16s ease, filter .16s ease;
+    }
+    .spin-btn:hover { transform: translateY(-2px); filter: brightness(1.05); }
+    .spin-btn:active { transform: translateY(0); }
+    .spin-btn:disabled { cursor: not-allowed; filter: grayscale(.55) brightness(.62); transform: none; }
+
+    .error { min-height: 18px; margin: -16px 0 -12px; color: #ff8891; font-size: 12px; text-align: center; }
+
+    .history-card {
+      grid-column: 1 / -1;
+      padding: 22px 24px;
+    }
+
+    .history-head { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+    .history-head h2 { margin: 0; font-size: 17px; letter-spacing: -.02em; }
+    .text-btn {
+      border: 0;
+      color: var(--muted);
+      background: transparent;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .text-btn:hover { color: var(--text); }
+
+    .history-list {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0,1fr));
+      gap: 10px;
+      margin-top: 16px;
+    }
+    .empty { grid-column: 1 / -1; padding: 10px 0; color: #6e7585; font-size: 13px; }
+    .history-item {
+      padding: 13px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(255,255,255,.025);
+    }
+    .history-item .result { display: flex; justify-content: space-between; gap: 8px; font-size: 12px; font-weight: 800; }
+    .history-item.win .result { color: var(--accent-2); }
+    .history-item.loss .result { color: #ff7d84; }
+    .history-item p { margin: 8px 0 0; color: var(--muted); font-size: 11px; }
+
+    .toast {
+      position: fixed;
+      z-index: 20;
+      left: 50%;
+      bottom: 28px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      max-width: calc(100% - 32px);
+      padding: 14px 18px;
+      transform: translate(-50%, 30px);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: rgba(15,18,26,.96);
+      box-shadow: 0 16px 45px rgba(0,0,0,.45);
+      opacity: 0;
+      pointer-events: none;
+      transition: .28s ease;
+      font-weight: 750;
+    }
+    .toast.show { transform: translate(-50%, 0); opacity: 1; }
+    .toast.win { border-color: rgba(97,244,200,.28); }
+    .toast.loss { border-color: rgba(255,89,100,.28); }
+
+    .modal-backdrop {
+      position: fixed;
+      z-index: 30;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      padding: 20px;
+      background: rgba(3,5,9,.72);
+      backdrop-filter: blur(10px);
+    }
+    .modal-backdrop[hidden] { display: none; }
+    .topup-modal {
+      position: relative;
+      width: min(430px, 100%);
+      padding: 28px;
+      border: 1px solid rgba(255,255,255,.11);
+      border-radius: 24px;
+      background: #151925;
+      box-shadow: 0 28px 90px rgba(0,0,0,.55);
+    }
+    .topup-modal h2 { margin: 4px 0 8px; font-size: 25px; letter-spacing: -.035em; }
+    .topup-modal .subtitle { margin-bottom: 22px; }
+    .modal-close {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      display: grid;
+      place-items: center;
+      width: 34px;
+      height: 34px;
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      color: var(--muted);
+      background: rgba(255,255,255,.03);
+      font-size: 20px;
+      cursor: pointer;
+    }
+    .topup-presets { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 10px 0 16px; }
+    .topup-error { min-height: 18px; margin: 8px 0; color: #ff8891; font-size: 12px; }
+    .topup-confirm { width: 100%; }
+
+    .footer-note { margin: 16px 0 0; color: #596070; font-size: 11px; text-align: center; }
+
+    @media (max-width: 880px) {
+      .game-grid { grid-template-columns: 1fr; }
+      .wheel-card { min-height: 570px; }
+      .history-card { grid-column: auto; }
+      .history-list { grid-template-columns: repeat(3, minmax(0,1fr)); }
+    }
+
+    @media (max-width: 560px) {
+      .app { width: min(100% - 20px, 1180px); padding-top: 14px; }
+      .topbar { margin-bottom: 12px; }
+      .brand span:last-child { display: none; }
+      .account-area { gap: 8px; }
+      .topup-btn { width: 40px; padding: 0; font-size: 0; }
+      .topup-btn::before { content: "+"; font-size: 22px; }
+      .balance { font-size: 21px; }
+      .card { border-radius: 22px; }
+      .wheel-card { min-height: 445px; padding: 50px 14px 24px; }
+      .pointer { top: 28px; width: 38px; height: 50px; }
+      .wheel-shell { width: min(360px, 86vw); padding: 9px; }
+      .hub { width: 112px; height: 112px; }
+      .hub strong { font-size: 27px; }
+      .wheel-legend { margin-top: 18px; }
+      .controls-card { padding: 22px; gap: 23px; }
+      .history-list { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .wheel { transition-duration: .15s; }
+      *, *::before, *::after { scroll-behavior: auto !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div class="brand"><span class="logo">%</span><span>ПРОЦЕНТ</span></div>
+      <div class="account-area">
+        <button class="topup-btn" id="topupOpen" type="button">＋ Пополнить</button>
+        <div class="balance-wrap">
+          <p class="eyebrow">Твой баланс</p>
+          <div class="balance"><span class="coin">₽</span><span id="balance">1 000</span></div>
+        </div>
+      </div>
+    </header>
+
+    <section class="game-grid">
+      <article class="card wheel-card">
+        <div class="pointer" aria-hidden="true"></div>
+        <div class="wheel-shell">
+          <div class="wheel" id="wheel"></div>
+          <div class="hub">
+            <div>
+              <p class="eyebrow">Шанс</p>
+              <strong id="hubChance">25%</strong>
+            </div>
+          </div>
+        </div>
+        <div class="wheel-legend">
+          <span class="legend-item"><i class="dot win"></i> выигрышный сектор</span>
+          <span class="legend-item"><i class="dot lose"></i> проигрышный сектор</span>
+          <button class="sound-toggle" id="soundToggle" type="button" aria-pressed="true">🔊 Звук включён</button>
+          <button class="speed-toggle" id="speedToggle" type="button" aria-pressed="false">⚡ Быстрый режим</button>
+        </div>
+      </article>
+
+      <aside class="card controls-card">
+        <div>
+          <p class="eyebrow">Колесо риска</p>
+          <h1>Выбери свой шанс</h1>
+          <p class="subtitle">Чем меньше сектор, тем крупнее выплата. Стрелка решает всё.</p>
+        </div>
+
+        <div>
+          <div class="field-head">
+            <label for="bet">Ставка</label>
+            <span class="field-note">макс. <span id="maxBet">1 000</span></span>
+          </div>
+          <div class="money-input">
+            <span class="coin">₽</span>
+            <input id="bet" type="number" min="1" max="1000" step="1" value="100" inputmode="numeric" aria-describedby="betError">
+          </div>
+          <div class="quick-bets">
+            <button class="chip" data-bet="50">50</button>
+            <button class="chip" data-bet="100">100</button>
+            <button class="chip" data-action="half">½</button>
+            <button class="chip" data-action="all">Всё</button>
+          </div>
+        </div>
+
+        <div>
+          <div class="field-head">
+            <label for="chance">Размер сектора</label>
+            <output class="chance-value" id="chanceValue" for="chance">25%</output>
+          </div>
+          <input id="chance" type="range" min="0.01" max="80" step="0.01" value="25">
+          <div class="range-labels"><span>0,01% · риск</span><span>80% · максимум</span></div>
+          <div class="chance-number-field">
+            <label for="chanceNumber">Ввести точный шанс</label>
+            <div class="chance-number-input" id="chanceNumberWrap">
+              <input id="chanceNumber" type="number" min="0.01" max="80" step="0.0001" value="25" inputmode="decimal">
+              <span>%</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="payout-box" id="payoutBox">
+          <div class="payout-copy">
+            <span>Выигрыш при попадании</span>
+            <small>Можно ввести свою сумму</small>
+          </div>
+          <div class="payout-input">
+            <span class="coin">₽</span>
+            <input id="payout" type="number" min="0.01" step="0.01" value="400" inputmode="decimal" aria-label="Желаемый выигрыш">
+          </div>
+        </div>
+
+        <p class="error" id="betError" role="alert"></p>
+        <button class="spin-btn" id="spin">КРУТИТЬ КОЛЕСО</button>
+      </aside>
+
+      <section class="card history-card">
+        <div class="history-head">
+          <h2>Последние вращения</h2>
+          <button class="text-btn" id="reset">Начать заново</button>
+        </div>
+        <div class="history-list" id="history">
+          <div class="empty">Здесь появятся результаты первых вращений.</div>
+        </div>
+      </section>
+    </section>
+    <p class="footer-note">Демо-игра на виртуальные монеты. Никаких реальных денег.</p>
+  </main>
+
+  <div class="modal-backdrop" id="topupModal" hidden>
+    <section class="topup-modal" role="dialog" aria-modal="true" aria-labelledby="topupTitle">
+      <button class="modal-close" id="topupClose" type="button" aria-label="Закрыть">×</button>
+      <p class="eyebrow">Панель создателя</p>
+      <h2 id="topupTitle">Пополнить баланс</h2>
+      <p class="subtitle">Добавь любое количество виртуальных монет.</p>
+      <label for="topupAmount">Сумма пополнения</label>
+      <div class="money-input">
+        <span class="coin">₽</span>
+        <input id="topupAmount" type="number" min="0.01" step="0.01" placeholder="Например, 10 000" inputmode="decimal">
+      </div>
+      <div class="topup-presets">
+        <button class="chip" type="button" data-topup="1000">+1 000</button>
+        <button class="chip" type="button" data-topup="10000">+10 000</button>
+        <button class="chip" type="button" data-topup="100000">+100 000</button>
+      </div>
+      <p class="topup-error" id="topupError" role="alert"></p>
+      <button class="spin-btn topup-confirm" id="topupConfirm" type="button">ДОБАВИТЬ НА БАЛАНС</button>
+    </section>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    const START_BALANCE = 1000;
+    const MIN_CHANCE = 0.01;
+    const MAX_CHANCE = 80;
+    const wheel = document.querySelector('#wheel');
+    const chanceInput = document.querySelector('#chance');
+    const chanceNumberInput = document.querySelector('#chanceNumber');
+    const chanceNumberWrap = document.querySelector('#chanceNumberWrap');
+    const betInput = document.querySelector('#bet');
+    const spinButton = document.querySelector('#spin');
+    const soundToggle = document.querySelector('#soundToggle');
+    const speedToggle = document.querySelector('#speedToggle');
+    const topupModal = document.querySelector('#topupModal');
+    const topupAmount = document.querySelector('#topupAmount');
+    const topupError = document.querySelector('#topupError');
+    const balanceNode = document.querySelector('#balance');
+    const maxBetNode = document.querySelector('#maxBet');
+    const chanceValue = document.querySelector('#chanceValue');
+    const hubChance = document.querySelector('#hubChance');
+    const payoutNode = document.querySelector('#payout');
+    const payoutBox = document.querySelector('#payoutBox');
+    const errorNode = document.querySelector('#betError');
+    const historyNode = document.querySelector('#history');
+    const toast = document.querySelector('#toast');
+
+    let balance = START_BALANCE;
+    let rotation = 0;
+    let currentChance = 25;
+    let desiredPayout = 400;
+    let selectionMode = 'chance';
+    let spinning = false;
+    let soundEnabled = true;
+    let fastMode = false;
+    let history = [];
+    let toastTimer;
+    let soundTickTimer;
+    let audioContext;
+    let activeSoundGain;
+
+    const money = value => {
+      const rounded = Math.abs(value) <= Number.MAX_SAFE_INTEGER / 100
+        ? Math.round((value + Number.EPSILON) * 100) / 100
+        : value;
+      return new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 2 }).format(rounded);
+    };
+
+    const formatChance = value => new Intl.NumberFormat('ru-RU', {
+      maximumFractionDigits: 4
+    }).format(value);
+
+    const validBet = () => {
+      const value = Number(betInput.value);
+      return Number.isFinite(value) && value >= 1 && value <= balance ? value : null;
+    };
+
+    const validChance = () => {
+      const value = Number(chanceNumberInput.value);
+      if (!Number.isFinite(value) || value < MIN_CHANCE || value > MAX_CHANCE) return null;
+      return Math.round(value * 1000000) / 1000000;
+    };
+
+    const validPayout = () => {
+      const value = Number(payoutNode.value);
+      return Number.isFinite(value) && value >= 0.01 ? value : null;
+    };
+
+    function syncChanceFromPayout() {
+      const bet = Number(betInput.value);
+      const payout = validPayout();
+      if (!Number.isFinite(bet) || bet < 1 || payout === null) return false;
+
+      const chance = bet * 100 / payout;
+      if (!Number.isFinite(chance) || chance < MIN_CHANCE || chance > MAX_CHANCE) return false;
+
+      desiredPayout = payout;
+      currentChance = Math.round(chance * 1000000) / 1000000;
+      chanceInput.value = currentChance;
+      chanceNumberInput.value = currentChance;
+      return true;
+    }
+
+    function updateError() {
+      const bet = Number(betInput.value);
+      const chance = validChance();
+      const payout = validPayout();
+      const impliedChance = bet > 0 && payout !== null ? bet * 100 / payout : null;
+      const payoutInvalid = selectionMode === 'payout' && (
+        payout === null || impliedChance === null || impliedChance < MIN_CHANCE || impliedChance > MAX_CHANCE
+      );
+      chanceNumberWrap.classList.toggle('invalid', chance === null);
+      payoutBox.classList.toggle('invalid', payoutInvalid);
+
+      if (chance === null) errorNode.textContent = 'Шанс должен быть от 0,01% до 80%';
+      else if (bet > balance) errorNode.textContent = 'Ставка больше текущего баланса';
+      else if (betInput.value !== '' && bet < 1) errorNode.textContent = 'Минимальная ставка — 1';
+      else if (selectionMode === 'payout' && payout === null) errorNode.textContent = 'Выигрыш должен быть больше нуля';
+      else if (selectionMode === 'payout' && impliedChance !== null && impliedChance < MIN_CHANCE) errorNode.textContent = `Максимальный выигрыш для этой ставки — ${money(bet * 100 / MIN_CHANCE)}`;
+      else if (selectionMode === 'payout' && impliedChance !== null && impliedChance > MAX_CHANCE) errorNode.textContent = `Минимальный выигрыш для этой ставки — ${money(bet * 100 / MAX_CHANCE)}`;
+      else errorNode.textContent = '';
+    }
+
+    function updatePreview() {
+      const chance = currentChance;
+      const bet = Math.max(0, Number(betInput.value) || 0);
+      const payout = bet * 100 / chance;
+
+      document.documentElement.style.setProperty('--chance-deg', `${chance * 3.6}deg`);
+      document.documentElement.style.setProperty('--range-fill', `${(chance - MIN_CHANCE) / (MAX_CHANCE - MIN_CHANCE) * 100}%`);
+      chanceValue.value = `${formatChance(chance)}%`;
+      chanceValue.textContent = `${formatChance(chance)}%`;
+      hubChance.textContent = `${formatChance(chance)}%`;
+      if (selectionMode === 'chance') {
+        desiredPayout = payout;
+        payoutNode.value = Math.abs(payout) <= Number.MAX_SAFE_INTEGER / 100
+          ? Math.round((payout + Number.EPSILON) * 100) / 100
+          : payout;
+      }
+      if (bet > 0) {
+        payoutNode.min = bet * 100 / MAX_CHANCE;
+        payoutNode.max = bet * 100 / MIN_CHANCE;
+      }
+      updateError();
+    }
+
+    function updateBalance() {
+      balanceNode.textContent = money(balance);
+      maxBetNode.textContent = money(balance);
+      betInput.max = balance;
+      if (balance <= 0) {
+        spinButton.disabled = true;
+        spinButton.textContent = 'МОНЕТЫ ЗАКОНЧИЛИСЬ';
+      } else if (!spinning) {
+        spinButton.disabled = false;
+        spinButton.textContent = 'КРУТИТЬ КОЛЕСО';
+      }
+    }
+
+    function randomUnit() {
+      if (window.crypto?.getRandomValues) {
+        const values = new Uint32Array(1);
+        window.crypto.getRandomValues(values);
+        return values[0] / 4294967296;
+      }
+      return Math.random();
+    }
+
+    function randomAngle() { return randomUnit() * 360; }
+
+    function stopSpinSound() {
+      clearTimeout(soundTickTimer);
+      if (activeSoundGain && audioContext) {
+        const now = audioContext.currentTime;
+        activeSoundGain.gain.cancelScheduledValues(now);
+        activeSoundGain.gain.setValueAtTime(Math.max(activeSoundGain.gain.value, 0.0001), now);
+        activeSoundGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.08);
+      }
+      activeSoundGain = null;
+    }
+
+    function playSpinSound(duration) {
+      if (!soundEnabled || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContextClass) return;
+
+      audioContext ||= new AudioContextClass();
+      audioContext.resume();
+      stopSpinSound();
+
+      const startAt = audioContext.currentTime;
+      const seconds = duration / 1000;
+      const master = audioContext.createGain();
+      const filter = audioContext.createBiquadFilter();
+      const whirr = audioContext.createOscillator();
+
+      activeSoundGain = master;
+      master.gain.setValueAtTime(0.025, startAt);
+      master.gain.setValueAtTime(0.025, startAt + Math.max(0.05, seconds * .55));
+      master.gain.exponentialRampToValueAtTime(0.0001, startAt + seconds);
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(380, startAt);
+      filter.frequency.exponentialRampToValueAtTime(95, startAt + seconds);
+      whirr.type = 'sawtooth';
+      whirr.frequency.setValueAtTime(115, startAt);
+      whirr.frequency.exponentialRampToValueAtTime(38, startAt + seconds);
+      whirr.connect(filter).connect(master).connect(audioContext.destination);
+      whirr.start(startAt);
+      whirr.stop(startAt + seconds + .05);
+
+      const realStart = performance.now();
+      const tick = () => {
+        if (!soundEnabled) return;
+        const progress = Math.min((performance.now() - realStart) / duration, 1);
+        if (progress >= 1) return;
+
+        const oscillator = audioContext.createOscillator();
+        const gain = audioContext.createGain();
+        const now = audioContext.currentTime;
+        oscillator.type = 'square';
+        oscillator.frequency.setValueAtTime(760 - progress * 360, now);
+        gain.gain.setValueAtTime(0.045 * (1 - progress * .5), now);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + .025);
+        oscillator.connect(gain).connect(audioContext.destination);
+        oscillator.start(now);
+        oscillator.stop(now + .03);
+
+        const delay = 42 + Math.pow(progress, 2.7) * 310;
+        soundTickTimer = setTimeout(tick, delay);
+      };
+      tick();
+    }
+
+    function showToast(won, text) {
+      clearTimeout(toastTimer);
+      toast.className = `toast show ${won ? 'win' : 'loss'}`;
+      toast.innerHTML = `<span>${won ? '✦' : '×'}</span><span>${text}</span>`;
+      toastTimer = setTimeout(() => toast.classList.remove('show'), 3200);
+    }
+
+    function renderHistory() {
+      if (!history.length) {
+        historyNode.innerHTML = '<div class="empty">Здесь появятся результаты первых вращений.</div>';
+        return;
+      }
+      historyNode.innerHTML = history.map(item => `
+        <div class="history-item ${item.won ? 'win' : 'loss'}">
+          <div class="result"><span>${item.won ? 'ВЫИГРЫШ' : 'МИМО'}</span><span>${item.won ? '+' : '−'}${money(item.won ? item.profit : item.bet)}</span></div>
+          <p>${money(item.bet)} на сектор ${formatChance(item.chance)}%</p>
+        </div>
+      `).join('');
+    }
+
+    function setControlsDisabled(disabled) {
+      spinning = disabled;
+      betInput.disabled = disabled;
+      chanceInput.disabled = disabled;
+      chanceNumberInput.disabled = disabled;
+      payoutNode.disabled = disabled;
+      document.querySelectorAll('.quick-bets .chip').forEach(button => button.disabled = disabled);
+      spinButton.disabled = disabled;
+      spinButton.textContent = disabled ? 'КРУТИМ…' : 'КРУТИТЬ КОЛЕСО';
+    }
+
+    function spin() {
+      if (spinning) return;
+      const bet = validBet();
+      if (!bet) {
+        errorNode.textContent = balance <= 0 ? 'Начни заново, чтобы получить 1 000' : 'Введи ставку от 1 до размера баланса';
+        betInput.focus();
+        return;
+      }
+      if (selectionMode === 'payout' && !syncChanceFromPayout()) {
+        updateError();
+        payoutNode.focus();
+        return;
+      }
+      const chance = validChance();
+      if (chance === null) {
+        errorNode.textContent = 'Введи шанс от 0,01% до 80%';
+        chanceNumberInput.focus();
+        return;
+      }
+
+      currentChance = chance;
+      const landedAngle = randomAngle();
+      const won = landedAngle < chance * 3.6;
+      const payout = selectionMode === 'payout' ? desiredPayout : bet * 100 / chance;
+      const targetModulo = (360 - landedAngle) % 360;
+      const currentModulo = ((rotation % 360) + 360) % 360;
+      const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const spinDuration = reducedMotion ? 180 : fastMode
+        ? 2000 + Math.round(randomUnit() * 1000)
+        : 2600 + Math.round(randomUnit() * 7000);
+      const extraTurns = fastMode
+        ? 5 + Math.floor(randomUnit() * 5)
+        : 5 + Math.floor(randomUnit() * 14);
+      const easingOptions = [
+        'cubic-bezier(.08,.72,.08,1)',
+        'cubic-bezier(.06,.42,.03,1)',
+        'cubic-bezier(.15,.84,.16,1)',
+        'cubic-bezier(.04,.58,.02,1)'
+      ];
+      const easing = easingOptions[Math.floor(randomUnit() * easingOptions.length)];
+      rotation += extraTurns * 360 + ((targetModulo - currentModulo + 360) % 360);
+
+      balance -= bet;
+      updateBalance();
+      setControlsDisabled(true);
+      wheel.style.setProperty('--spin-duration', `${spinDuration}ms`);
+      wheel.style.setProperty('--spin-easing', easing);
+      wheel.style.transform = `rotate(${rotation}deg)`;
+      playSpinSound(spinDuration);
+
+      window.setTimeout(() => {
+        stopSpinSound();
+        if (won) balance += payout;
+        balance = Math.round((balance + Number.EPSILON) * 100) / 100;
+        const profit = payout - bet;
+        history.unshift({ won, bet, chance, profit });
+        history = history.slice(0, 5);
+        renderHistory();
+        updateBalance();
+        setControlsDisabled(false);
+
+        if (balance <= 0) {
+          spinButton.disabled = true;
+          spinButton.textContent = 'МОНЕТЫ ЗАКОНЧИЛИСЬ';
+        }
+        showToast(won, won ? `Сектор пойман! Чистый плюс ${money(profit)}` : `Не попал. Ставка ${money(bet)} сгорела`);
+        updatePreview();
+      }, spinDuration + 50);
+    }
+
+    chanceInput.addEventListener('input', () => {
+      selectionMode = 'chance';
+      currentChance = Math.round(Number(chanceInput.value) * 100) / 100;
+      chanceNumberInput.value = currentChance;
+      updatePreview();
+    });
+    chanceNumberInput.addEventListener('input', () => {
+      selectionMode = 'chance';
+      const chance = validChance();
+      if (chance !== null) {
+        currentChance = chance;
+        chanceInput.value = chance;
+      }
+      updatePreview();
+    });
+    chanceNumberInput.addEventListener('blur', () => {
+      const chance = validChance();
+      chanceNumberInput.value = chance === null ? currentChance : chance;
+      if (chance !== null) currentChance = chance;
+      chanceInput.value = currentChance;
+      updatePreview();
+    });
+    payoutNode.addEventListener('input', () => {
+      selectionMode = 'payout';
+      syncChanceFromPayout();
+      updatePreview();
+    });
+    betInput.addEventListener('input', () => {
+      if (selectionMode === 'payout') syncChanceFromPayout();
+      updatePreview();
+    });
+    spinButton.addEventListener('click', spin);
+
+    soundToggle.addEventListener('click', () => {
+      soundEnabled = !soundEnabled;
+      soundToggle.setAttribute('aria-pressed', String(soundEnabled));
+      soundToggle.textContent = soundEnabled ? '🔊 Звук включён' : '🔇 Звук выключен';
+      if (!soundEnabled) stopSpinSound();
+    });
+
+    speedToggle.addEventListener('click', () => {
+      fastMode = !fastMode;
+      speedToggle.setAttribute('aria-pressed', String(fastMode));
+      speedToggle.textContent = fastMode ? '⚡ Быстрый: ВКЛ' : '⚡ Быстрый режим';
+      showToast(true, fastMode ? 'Быстрый режим: вращение займёт 2–3 секунды' : 'Обычный режим вращения');
+    });
+
+    document.querySelectorAll('.quick-bets .chip').forEach(button => {
+      button.addEventListener('click', () => {
+        if (button.dataset.bet) betInput.value = Math.min(Number(button.dataset.bet), balance);
+        if (button.dataset.action === 'half') betInput.value = Math.max(1, Math.floor(balance / 2));
+        if (button.dataset.action === 'all') betInput.value = balance;
+        if (selectionMode === 'payout') syncChanceFromPayout();
+        updatePreview();
+      });
+    });
+
+    function openTopup() {
+      topupModal.hidden = false;
+      topupError.textContent = '';
+      topupAmount.value = '';
+      document.body.style.overflow = 'hidden';
+      window.setTimeout(() => topupAmount.focus(), 0);
+    }
+
+    function closeTopup() {
+      topupModal.hidden = true;
+      document.body.style.overflow = '';
+    }
+
+    function addFunds() {
+      const amount = Number(topupAmount.value);
+      const nextBalance = balance + amount;
+      if (!Number.isFinite(amount) || amount < 0.01) {
+        topupError.textContent = 'Введи положительную сумму от 0,01';
+        topupAmount.focus();
+        return;
+      }
+      if (!Number.isFinite(nextBalance)) {
+        topupError.textContent = 'Это уже слишком много даже для создателя';
+        topupAmount.focus();
+        return;
+      }
+
+      balance = Math.abs(nextBalance) <= Number.MAX_SAFE_INTEGER / 100
+        ? Math.round((nextBalance + Number.EPSILON) * 100) / 100
+        : nextBalance;
+      updateBalance();
+      updatePreview();
+      closeTopup();
+      showToast(true, `Баланс пополнен на ${money(amount)}`);
+    }
+
+    document.querySelector('#topupOpen').addEventListener('click', openTopup);
+    document.querySelector('#topupClose').addEventListener('click', closeTopup);
+    document.querySelector('#topupConfirm').addEventListener('click', addFunds);
+    document.querySelectorAll('[data-topup]').forEach(button => {
+      button.addEventListener('click', () => {
+        topupAmount.value = button.dataset.topup;
+        topupError.textContent = '';
+      });
+    });
+    topupAmount.addEventListener('keydown', event => {
+      if (event.key === 'Enter') addFunds();
+    });
+    topupModal.addEventListener('click', event => {
+      if (event.target === topupModal) closeTopup();
+    });
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape' && !topupModal.hidden) closeTopup();
+    });
+
+    document.querySelector('#reset').addEventListener('click', () => {
+      if (spinning) return;
+      balance = START_BALANCE;
+      history = [];
+      betInput.value = 100;
+      chanceInput.value = 25;
+      chanceNumberInput.value = 25;
+      currentChance = 25;
+      desiredPayout = 400;
+      selectionMode = 'chance';
+      spinButton.disabled = false;
+      spinButton.textContent = 'КРУТИТЬ КОЛЕСО';
+      renderHistory();
+      updateBalance();
+      updatePreview();
+      showToast(true, 'Новая игра: на балансе 1 000');
+    });
+
+    updateBalance();
+    updatePreview();
+  </script>
+</body>
+</html>
