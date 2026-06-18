@@ -742,6 +742,8 @@
       place-items: center;
       overflow: hidden;
       padding: 28px;
+      background: #121622;
+      backdrop-filter: none;
     }
     .case-arena {
       width: min(700px, 100%);
@@ -791,7 +793,7 @@
     .case-marker::before, .case-marker::after { content: ""; position: absolute; left: 50%; transform: translateX(-50%); border: 7px solid transparent; }
     .case-marker::before { top: 0; border-top-color: #fff; }
     .case-marker::after { bottom: 0; border-bottom-color: #fff; }
-    .case-reel { display: flex; gap: 10px; width: max-content; transform: translateX(0); will-change: transform; }
+    .case-reel { display: flex; gap: 10px; width: max-content; transform: none; }
     .case-roll-item {
       flex: 0 0 124px;
       display: grid;
@@ -1673,6 +1675,7 @@
     let selectedCase = 'starter';
     let caseHistory = [];
     let caseTickTimer;
+    let caseAnimationFrame;
     let mysteryRunning = false;
     let mysteryHistory = [];
     let mysteryCycleTimer;
@@ -2526,8 +2529,8 @@
       renderCaseDrops();
       if (!casesOpening) {
         if (resetReel) {
-          caseReel.style.transition = 'none';
-          caseReel.style.transform = 'translateX(0)';
+          cancelAnimationFrame(caseAnimationFrame);
+          caseReelWindow.scrollLeft = 0;
           caseReel.innerHTML = config.drops.map(caseDropMarkup).join('');
           caseResult.className = 'case-result';
           caseResult.textContent = 'Выбери кейс и открой его';
@@ -2539,24 +2542,28 @@
     }
 
     function buildCaseReel(config, winningDrop) {
-      const winningIndex = 34;
-      const items = Array.from({ length: 42 }, (_, index) => index === winningIndex ? winningDrop : randomVisualCaseDrop(config));
+      const winningIndex = 23;
+      const items = Array.from({ length: 29 }, (_, index) => index === winningIndex ? winningDrop : randomVisualCaseDrop(config));
       caseReel.innerHTML = items.map(caseDropMarkup).join('');
       return winningIndex;
     }
 
-    function animateCaseReel(winningIndex) {
-      caseReel.style.transition = 'none';
-      caseReel.style.transform = 'translateX(0)';
-      void caseReel.offsetWidth;
+    function animateCaseReel(winningIndex, duration = 4200) {
+      cancelAnimationFrame(caseAnimationFrame);
+      caseReelWindow.scrollLeft = 0;
       const item = caseReel.children[winningIndex];
       const itemWidth = item.getBoundingClientRect().width;
+      const itemOffset = item.getBoundingClientRect().left - caseReel.getBoundingClientRect().left;
       const jitter = (randomUnit() - .5) * itemWidth * .48;
-      const target = item.offsetLeft + itemWidth / 2 - caseReelWindow.clientWidth / 2 + jitter;
-      requestAnimationFrame(() => {
-        caseReel.style.transition = 'transform 4.8s cubic-bezier(.12,.68,.06,1)';
-        caseReel.style.transform = `translateX(${-target}px)`;
-      });
+      const target = itemOffset + itemWidth / 2 - caseReelWindow.clientWidth / 2 + jitter;
+      const startedAt = performance.now();
+      const step = now => {
+        const progress = Math.min(1, (now - startedAt) / duration);
+        const eased = 1 - Math.pow(1 - progress, 4.2);
+        caseReelWindow.scrollLeft = target * eased;
+        if (progress < 1) caseAnimationFrame = requestAnimationFrame(step);
+      };
+      caseAnimationFrame = requestAnimationFrame(step);
     }
 
     async function openSelectedCase() {
@@ -2592,7 +2599,7 @@
       const winningDrop = config.drops.find(drop => drop.amount === Number(result.prize)) || config.drops[0];
       const winningIndex = buildCaseReel(config, winningDrop);
       animateCaseReel(winningIndex);
-      playMysteryRollSound(4.8);
+      playMysteryRollSound(4.2);
       clearInterval(caseTickTimer);
       caseTickTimer = setInterval(playSlotTick, 115);
 
@@ -2610,7 +2617,7 @@
         updateBalance();
         updateCaseView();
         showToast(Number(result.prize) >= config.cost, `Кейс: выпало ${money(result.prize)} коинов`);
-      }, 4950);
+      }, 4350);
     }
 
     const formatMultiplier = value => Number(value).toLocaleString('ru-RU', { maximumFractionDigits: 2 });
