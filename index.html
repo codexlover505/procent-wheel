@@ -1313,7 +1313,6 @@
     const START_BALANCE = 0;
     const MIN_CHANCE = 0.01;
     const MAX_CHANCE = 80;
-    const PAYOUT_FACTOR = 0.95;
     const SUPABASE_URL = 'https://kgdxpchsofisfbxprkto.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_1XpT7qxrlRalawg0M852pw_P2YgneEB';
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -1396,6 +1395,7 @@
     let soundTickTimer;
     let audioContext;
     let activeSoundGain;
+    const activeEffectGains = new Set();
     let circleResizeFrame;
     let rocketRunning = false;
     let rocketBet = 0;
@@ -1547,7 +1547,7 @@
       const payout = validPayout();
       if (!Number.isFinite(bet) || bet < 1 || payout === null) return false;
 
-      const chance = bet * 100 * PAYOUT_FACTOR / payout;
+      const chance = bet * 100 / payout;
       if (!Number.isFinite(chance) || chance < MIN_CHANCE || chance > MAX_CHANCE) return false;
 
       desiredPayout = payout;
@@ -1561,7 +1561,7 @@
       const bet = Number(betInput.value);
       const chance = validChance();
       const payout = validPayout();
-      const impliedChance = bet > 0 && payout !== null ? bet * 100 * PAYOUT_FACTOR / payout : null;
+      const impliedChance = bet > 0 && payout !== null ? bet * 100 / payout : null;
       const payoutInvalid = selectionMode === 'payout' && (
         payout === null || impliedChance === null || impliedChance < MIN_CHANCE || impliedChance > MAX_CHANCE
       );
@@ -1572,15 +1572,15 @@
       else if (bet > balance) errorNode.textContent = 'Ставка больше текущего баланса';
       else if (betInput.value !== '' && bet < 1) errorNode.textContent = 'Минимальная ставка — 1';
       else if (selectionMode === 'payout' && payout === null) errorNode.textContent = 'Выигрыш должен быть больше нуля';
-      else if (selectionMode === 'payout' && impliedChance !== null && impliedChance < MIN_CHANCE) errorNode.textContent = `Максимальный выигрыш для этой ставки — ${money(bet * 100 * PAYOUT_FACTOR / MIN_CHANCE)}`;
-      else if (selectionMode === 'payout' && impliedChance !== null && impliedChance > MAX_CHANCE) errorNode.textContent = `Минимальный выигрыш для этой ставки — ${money(bet * 100 * PAYOUT_FACTOR / MAX_CHANCE)}`;
+      else if (selectionMode === 'payout' && impliedChance !== null && impliedChance < MIN_CHANCE) errorNode.textContent = `Максимальный выигрыш для этой ставки — ${money(bet * 100 / MIN_CHANCE)}`;
+      else if (selectionMode === 'payout' && impliedChance !== null && impliedChance > MAX_CHANCE) errorNode.textContent = `Минимальный выигрыш для этой ставки — ${money(bet * 100 / MAX_CHANCE)}`;
       else errorNode.textContent = '';
     }
 
     function updatePreview() {
       const chance = currentChance;
       const bet = Math.max(0, Number(betInput.value) || 0);
-      const payout = bet * 100 * PAYOUT_FACTOR / chance;
+      const payout = bet * 100 / chance;
 
       document.documentElement.style.setProperty('--chance-deg', `${chance * 3.6}deg`);
       document.documentElement.style.setProperty('--range-fill', `${(chance - MIN_CHANCE) / (MAX_CHANCE - MIN_CHANCE) * 100}%`);
@@ -1594,8 +1594,8 @@
           : payout;
       }
       if (bet > 0) {
-        payoutNode.min = bet * 100 * PAYOUT_FACTOR / MAX_CHANCE;
-        payoutNode.max = bet * 100 * PAYOUT_FACTOR / MIN_CHANCE;
+        payoutNode.min = bet * 100 / MAX_CHANCE;
+        payoutNode.max = bet * 100 / MIN_CHANCE;
       }
       updateError();
     }
@@ -1748,6 +1748,7 @@
     }
 
     function crashRocket() {
+      playExplosionSound(.5);
       rocketMultiplier = rocketCrashAt;
       drawRocketFlight(rocketMultiplier);
       rocketStage.classList.add('crashed');
@@ -1814,6 +1815,7 @@
         balance = Number(result.balance);
         updateBalance();
         rocketStartTime = performance.now() - Math.max(0, Date.now() - Date.parse(result.started_at));
+        playRocketLaunchSound();
       } catch (error) {
         rocketRunning = false;
         lockRocketControls(false);
@@ -1905,8 +1907,10 @@
       slotMessage.className = 'slot-message';
       slotMessage.textContent = 'Ловим комбинацию…';
       slotReels.forEach(reel => reel.classList.add('spinning'));
+      playSlotTick();
       slotRollInterval = setInterval(() => {
         slotSymbols.forEach(node => node.textContent = SLOT_SYMBOLS[Math.floor(randomUnit() * SLOT_SYMBOLS.length)]);
+        playSlotTick();
       }, 85);
 
       let serverResult;
@@ -2039,6 +2043,7 @@
     }
 
     function loseMines(index, minePositions = []) {
+      playExplosionSound();
       minesSet = new Set(minePositions.map(Number));
       const cell = minesGrid.querySelector(`[data-cell="${index}"]`);
       cell.textContent = '💣';
@@ -2094,6 +2099,7 @@
       }
 
       minesOpened.add(index);
+      playSafeCellSound();
       cell.textContent = '◆';
       cell.classList.add('safe');
       minesMultiplier = Number(result.multiplier);
@@ -2161,6 +2167,154 @@
         activeSoundGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.08);
       }
       activeSoundGain = null;
+    }
+
+    function getAudioContext() {
+      if (!soundEnabled) return null;
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContextClass) return null;
+      audioContext ||= new AudioContextClass();
+      if (audioContext.state === 'suspended') audioContext.resume().catch(() => {});
+      return audioContext;
+    }
+
+    function trackEffectGain(gain, durationMs) {
+      activeEffectGains.add(gain);
+      window.setTimeout(() => activeEffectGains.delete(gain), durationMs + 100);
+      return gain;
+    }
+
+    function stopEffectSounds() {
+      if (!audioContext) return;
+      const now = audioContext.currentTime;
+      activeEffectGains.forEach(gain => {
+        try {
+          gain.gain.cancelScheduledValues(now);
+          gain.gain.setValueAtTime(Math.max(gain.gain.value, .0001), now);
+          gain.gain.exponentialRampToValueAtTime(.0001, now + .035);
+        } catch (_) {}
+      });
+      activeEffectGains.clear();
+    }
+
+    function playButtonClick() {
+      const context = getAudioContext();
+      if (!context) return;
+      const now = context.currentTime;
+      const oscillator = context.createOscillator();
+      const gain = trackEffectGain(context.createGain(), 55);
+      oscillator.type = 'square';
+      oscillator.frequency.setValueAtTime(520, now);
+      oscillator.frequency.exponentialRampToValueAtTime(310, now + .045);
+      gain.gain.setValueAtTime(.018, now);
+      gain.gain.exponentialRampToValueAtTime(.0001, now + .05);
+      oscillator.connect(gain).connect(context.destination);
+      oscillator.start(now);
+      oscillator.stop(now + .055);
+    }
+
+    function playSlotTick() {
+      const context = getAudioContext();
+      if (!context) return;
+      const now = context.currentTime;
+      const oscillator = context.createOscillator();
+      const gain = trackEffectGain(context.createGain(), 35);
+      oscillator.type = 'square';
+      oscillator.frequency.setValueAtTime(185 + randomUnit() * 75, now);
+      oscillator.frequency.exponentialRampToValueAtTime(105, now + .028);
+      gain.gain.setValueAtTime(.027, now);
+      gain.gain.exponentialRampToValueAtTime(.0001, now + .03);
+      oscillator.connect(gain).connect(context.destination);
+      oscillator.start(now);
+      oscillator.stop(now + .035);
+    }
+
+    function playSafeCellSound() {
+      const context = getAudioContext();
+      if (!context) return;
+      const now = context.currentTime;
+      [0, .055].forEach((delay, index) => {
+        const oscillator = context.createOscillator();
+        const gain = trackEffectGain(context.createGain(), 180);
+        oscillator.type = 'sine';
+        oscillator.frequency.setValueAtTime(index ? 920 : 690, now + delay);
+        gain.gain.setValueAtTime(.0001, now + delay);
+        gain.gain.linearRampToValueAtTime(.055, now + delay + .008);
+        gain.gain.exponentialRampToValueAtTime(.0001, now + delay + .14);
+        oscillator.connect(gain).connect(context.destination);
+        oscillator.start(now + delay);
+        oscillator.stop(now + delay + .16);
+      });
+    }
+
+    function playExplosionSound(volume = 1) {
+      const context = getAudioContext();
+      if (!context) return;
+      const now = context.currentTime;
+      const duration = .48;
+      const buffer = context.createBuffer(1, Math.ceil(context.sampleRate * duration), context.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let index = 0; index < data.length; index += 1) {
+        const decay = Math.pow(1 - index / data.length, 2.2);
+        data[index] = (Math.random() * 2 - 1) * decay;
+      }
+      const noise = context.createBufferSource();
+      const filter = context.createBiquadFilter();
+      const gain = trackEffectGain(context.createGain(), duration * 1000);
+      const boom = context.createOscillator();
+      const boomGain = trackEffectGain(context.createGain(), 360);
+      noise.buffer = buffer;
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(1250, now);
+      filter.frequency.exponentialRampToValueAtTime(120, now + duration);
+      gain.gain.setValueAtTime(.22 * volume, now);
+      gain.gain.exponentialRampToValueAtTime(.0001, now + duration);
+      boom.type = 'sine';
+      boom.frequency.setValueAtTime(105, now);
+      boom.frequency.exponentialRampToValueAtTime(32, now + .32);
+      boomGain.gain.setValueAtTime(.2 * volume, now);
+      boomGain.gain.exponentialRampToValueAtTime(.0001, now + .34);
+      noise.connect(filter).connect(gain).connect(context.destination);
+      boom.connect(boomGain).connect(context.destination);
+      noise.start(now);
+      boom.start(now);
+      noise.stop(now + duration);
+      boom.stop(now + .36);
+    }
+
+    function playRocketLaunchSound() {
+      const context = getAudioContext();
+      if (!context) return;
+      const now = context.currentTime;
+      const duration = 1.35;
+      const buffer = context.createBuffer(1, Math.ceil(context.sampleRate * duration), context.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let index = 0; index < data.length; index += 1) data[index] = Math.random() * 2 - 1;
+      const noise = context.createBufferSource();
+      const filter = context.createBiquadFilter();
+      const noiseGain = trackEffectGain(context.createGain(), duration * 1000);
+      const engine = context.createOscillator();
+      const engineGain = trackEffectGain(context.createGain(), duration * 1000);
+      noise.buffer = buffer;
+      filter.type = 'bandpass';
+      filter.Q.value = .7;
+      filter.frequency.setValueAtTime(180, now);
+      filter.frequency.exponentialRampToValueAtTime(1250, now + duration);
+      noiseGain.gain.setValueAtTime(.0001, now);
+      noiseGain.gain.linearRampToValueAtTime(.13, now + .18);
+      noiseGain.gain.exponentialRampToValueAtTime(.0001, now + duration);
+      engine.type = 'sawtooth';
+      engine.frequency.setValueAtTime(55, now);
+      engine.frequency.exponentialRampToValueAtTime(240, now + duration);
+      engineGain.gain.setValueAtTime(.0001, now);
+      engineGain.gain.linearRampToValueAtTime(.055, now + .12);
+      engineGain.gain.exponentialRampToValueAtTime(.0001, now + duration);
+      noise.connect(filter).connect(noiseGain).connect(context.destination);
+      engine.connect(engineGain).connect(context.destination);
+      noise.start(now);
+      engine.start(now);
+      noise.stop(now + duration);
+      engine.stop(now + duration);
     }
 
     function playSpinSound(duration) {
@@ -2361,11 +2515,21 @@
     });
     spinButton.addEventListener('click', spin);
 
+    document.addEventListener('click', event => {
+      const button = event.target.closest('button');
+      if (button && !button.disabled) playButtonClick();
+    }, true);
+
     soundToggle.addEventListener('click', () => {
       soundEnabled = !soundEnabled;
       soundToggle.setAttribute('aria-pressed', String(soundEnabled));
       soundToggle.textContent = soundEnabled ? '🔊 Звук включён' : '🔇 Звук выключен';
-      if (!soundEnabled) stopSpinSound();
+      if (!soundEnabled) {
+        stopSpinSound();
+        stopEffectSounds();
+      } else {
+        playButtonClick();
+      }
     });
 
     speedToggle.addEventListener('click', () => {
