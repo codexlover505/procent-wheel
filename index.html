@@ -961,6 +961,7 @@
     const MIN_CHANCE = 0.01;
     const MAX_CHANCE = 80;
     const PAYOUT_FACTOR = 0.95;
+    const STORAGE_KEY = 'procent-game-balance-v1';
     const wheel = document.querySelector('#wheel');
     const wheelShell = document.querySelector('.wheel-shell');
     const chanceInput = document.querySelector('#chance');
@@ -997,7 +998,24 @@
     const rocketAction = document.querySelector('#rocketAction');
     const rocketHistoryNode = document.querySelector('#rocketHistory');
 
-    let balance = START_BALANCE;
+    function loadSavedBalance() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+        return Number.isFinite(saved?.balance) && saved.balance >= 0 ? saved.balance : START_BALANCE;
+      } catch {
+        return START_BALANCE;
+      }
+    }
+
+    function saveBalance() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ balance }));
+      } catch {
+        // Игра продолжает работать даже если браузер запретил локальное хранилище.
+      }
+    }
+
+    let balance = loadSavedBalance();
     let rotation = 0;
     let currentChance = 25;
     let desiredPayout = 380;
@@ -1115,6 +1133,7 @@
     }
 
     function updateBalance() {
+      saveBalance();
       balanceNode.textContent = money(balance);
       maxBetNode.textContent = money(balance);
       rocketMaxBet.textContent = money(balance);
@@ -1123,14 +1142,22 @@
       if (balance <= 0) {
         spinButton.disabled = true;
         spinButton.textContent = 'МОНЕТЫ ЗАКОНЧИЛИСЬ';
+        document.querySelectorAll('#wheelGame .quick-bets .chip, .rocket-quick-bets .chip').forEach(button => button.disabled = true);
         if (!rocketRunning) {
           rocketAction.disabled = true;
           rocketAction.textContent = 'МОНЕТЫ ЗАКОНЧИЛИСЬ';
         }
       } else if (!spinning) {
+        if (!Number.isFinite(Number(betInput.value)) || Number(betInput.value) < 1 || Number(betInput.value) > balance) {
+          betInput.value = Math.min(100, balance);
+        }
         spinButton.disabled = false;
         spinButton.textContent = 'КРУТИТЬ КОЛЕСО';
         if (!rocketRunning) {
+          if (!Number.isFinite(Number(rocketBetInput.value)) || Number(rocketBetInput.value) < 1 || Number(rocketBetInput.value) > balance) {
+            rocketBetInput.value = Math.min(100, balance);
+          }
+          document.querySelectorAll('#wheelGame .quick-bets .chip, .rocket-quick-bets .chip').forEach(button => button.disabled = false);
           rocketAction.disabled = false;
           rocketAction.textContent = 'ЗАПУСТИТЬ РАКЕТУ';
         }
@@ -1443,8 +1470,8 @@
         history.unshift({ won, bet, chance, profit });
         history = history.slice(0, 5);
         renderHistory();
-        updateBalance();
         setControlsDisabled(false);
+        updateBalance();
 
         if (balance <= 0) {
           spinButton.disabled = true;
