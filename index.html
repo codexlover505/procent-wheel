@@ -1427,7 +1427,7 @@
           </div>
         </div>
         <div>
-          <div class="field-head"><label>Возможные множители</label><span class="field-note">шанс</span></div>
+          <div class="field-head"><label>Непрерывный диапазон</label><span class="field-note">любой результат</span></div>
           <div class="mystery-table" id="mysteryTable"></div>
         </div>
         <p class="error" id="mysteryError" role="alert"></p>
@@ -1690,57 +1690,48 @@
       starter: {
         title: 'Стартовый кейс', icon: '📦', cost: 100,
         drops: [
-          { amount: 20, chance: 40, tier: 'common', icon: '🪙' },
-          { amount: 50, chance: 30, tier: 'uncommon', icon: '💵' },
-          { amount: 100, chance: 18, tier: 'rare', icon: '💰' },
-          { amount: 250, chance: 8, tier: 'epic', icon: '💎' },
-          { amount: 500, chance: 3, tier: 'legendary', icon: '👑' },
-          { amount: 1000, chance: 1, tier: 'mythic', icon: '🔥' }
+          { amount: 20, chance: 20, tier: 'common', icon: '🪙' },
+          { amount: 50, chance: 20, tier: 'uncommon', icon: '💵' },
+          { amount: 100, chance: 25, tier: 'rare', icon: '💰' },
+          { amount: 250, chance: 20, tier: 'epic', icon: '💎' },
+          { amount: 500, chance: 10, tier: 'legendary', icon: '👑' },
+          { amount: 1000, chance: 5, tier: 'mythic', icon: '🔥' }
         ]
       },
       neon: {
         title: 'Неоновый кейс', icon: '💠', cost: 1000,
         drops: [
-          { amount: 200, chance: 35, tier: 'common', icon: '🪙' },
-          { amount: 500, chance: 30, tier: 'uncommon', icon: '💵' },
-          { amount: 1000, chance: 20, tier: 'rare', icon: '💰' },
-          { amount: 2500, chance: 10, tier: 'epic', icon: '💎' },
-          { amount: 5000, chance: 4, tier: 'legendary', icon: '👑' },
-          { amount: 10000, chance: 1, tier: 'mythic', icon: '🔥' }
+          { amount: 200, chance: 20, tier: 'common', icon: '🪙' },
+          { amount: 500, chance: 20, tier: 'uncommon', icon: '💵' },
+          { amount: 1000, chance: 25, tier: 'rare', icon: '💰' },
+          { amount: 2500, chance: 20, tier: 'epic', icon: '💎' },
+          { amount: 5000, chance: 10, tier: 'legendary', icon: '👑' },
+          { amount: 10000, chance: 5, tier: 'mythic', icon: '🔥' }
         ]
       },
       elite: {
         title: 'Элитный кейс', icon: '👑', cost: 10000,
         drops: [
-          { amount: 2000, chance: 32, tier: 'common', icon: '🪙' },
-          { amount: 5000, chance: 30, tier: 'uncommon', icon: '💵' },
-          { amount: 10000, chance: 23, tier: 'rare', icon: '💰' },
-          { amount: 25000, chance: 10, tier: 'epic', icon: '💎' },
-          { amount: 50000, chance: 4, tier: 'legendary', icon: '👑' },
-          { amount: 100000, chance: 1, tier: 'mythic', icon: '🔥' }
+          { amount: 2000, chance: 20, tier: 'common', icon: '🪙' },
+          { amount: 5000, chance: 20, tier: 'uncommon', icon: '💵' },
+          { amount: 10000, chance: 25, tier: 'rare', icon: '💰' },
+          { amount: 25000, chance: 20, tier: 'epic', icon: '💎' },
+          { amount: 50000, chance: 10, tier: 'legendary', icon: '👑' },
+          { amount: 100000, chance: 5, tier: 'mythic', icon: '🔥' }
         ]
       },
       legend: {
         title: 'Кейс легенды', icon: '🔥', cost: 100000,
         drops: [
-          { amount: 25000, chance: 35, tier: 'common', icon: '🪙' },
-          { amount: 50000, chance: 30, tier: 'uncommon', icon: '💵' },
-          { amount: 100000, chance: 20, tier: 'rare', icon: '💰' },
-          { amount: 250000, chance: 10, tier: 'epic', icon: '💎' },
-          { amount: 500000, chance: 4, tier: 'legendary', icon: '👑' },
-          { amount: 1000000, chance: 1, tier: 'mythic', icon: '🔥' }
+          { amount: 25000, chance: 20, tier: 'common', icon: '🪙' },
+          { amount: 50000, chance: 20, tier: 'uncommon', icon: '💵' },
+          { amount: 100000, chance: 25, tier: 'rare', icon: '💰' },
+          { amount: 250000, chance: 20, tier: 'epic', icon: '💎' },
+          { amount: 500000, chance: 10, tier: 'legendary', icon: '👑' },
+          { amount: 1000000, chance: 5, tier: 'mythic', icon: '🔥' }
         ]
       }
     };
-    const MYSTERY_OUTCOMES = [
-      { multiplier: .1, chance: 22 }, { multiplier: .25, chance: 20 },
-      { multiplier: .5, chance: 18 }, { multiplier: .75, chance: 15 },
-      { multiplier: 1, chance: 12 }, { multiplier: 1.5, chance: 6 },
-      { multiplier: 2, chance: 3.5 }, { multiplier: 5, chance: 2 },
-      { multiplier: 10, chance: 1 }, { multiplier: 25, chance: .4 },
-      { multiplier: 50, chance: .1 }
-    ];
-
     const usernamePattern = /^[A-Za-z0-9_-]{3,24}$/;
     const passwordPattern = /^[\x21-\x7E]{8,72}$/;
     const authEmail = username => `${username.toLowerCase()}@procent.game`;
@@ -2625,9 +2616,14 @@
     const formatMultiplier = value => Number(value).toLocaleString('ru-RU', { maximumFractionDigits: 2 });
 
     function renderMysteryTable() {
-      mysteryTable.innerHTML = MYSTERY_OUTCOMES.map(item => `
-        <div class="mystery-odd"><strong>×${formatMultiplier(item.multiplier)}</strong><span>${formatChance(item.chance)}%</span></div>
-      `).join('');
+      mysteryTable.innerHTML = `
+        <div class="mystery-odd"><strong>×0,10–0,99</strong><span>69%</span></div>
+        <div class="mystery-odd"><strong>×1,00–1,99</strong><span>20%</span></div>
+        <div class="mystery-odd"><strong>×2,00–4,99</strong><span>7%</span></div>
+        <div class="mystery-odd"><strong>×5,00–14,99</strong><span>3,4%</span></div>
+        <div class="mystery-odd"><strong>×15,00–50,00</strong><span>0,6%</span></div>
+        <div class="mystery-odd"><strong>Любое число</strong><span>шаг 0,01</span></div>
+      `;
     }
 
     function renderMysteryHistory() {
@@ -2666,8 +2662,8 @@
       playMysteryRollSound(2.8);
       clearInterval(mysteryCycleTimer);
       mysteryCycleTimer = setInterval(() => {
-        const randomOutcome = MYSTERY_OUTCOMES[Math.floor(randomUnit() * MYSTERY_OUTCOMES.length)];
-        mysteryValue.textContent = `×${formatMultiplier(randomOutcome.multiplier)}`;
+        const visualMultiplier = .1 + Math.pow(randomUnit(), 2.4) * 49.9;
+        mysteryValue.textContent = `×${formatMultiplier(visualMultiplier)}`;
         playSlotTick();
       }, 95);
 
