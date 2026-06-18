@@ -613,6 +613,112 @@
     .rocket-history-chip.win { color: var(--accent-2); border-color: rgba(97,244,200,.2); }
     .rocket-history-chip.loss { color: #ff7d84; border-color: rgba(255,89,100,.18); }
 
+    .slot-stage-card, .mines-stage-card {
+      min-height: 650px;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      padding: 28px;
+    }
+    .slot-machine {
+      width: min(620px, 100%);
+      padding: 34px;
+      border: 1px solid rgba(255,203,76,.24);
+      border-radius: 30px;
+      background: linear-gradient(145deg, #2a1d24, #131621 58%, #211923);
+      box-shadow: 0 30px 70px rgba(0,0,0,.42), inset 0 0 50px rgba(255,190,60,.045);
+    }
+    .slot-title { margin-bottom: 24px; color: #ffd45f; font-size: 13px; font-weight: 900; letter-spacing: .16em; text-align: center; }
+    .slot-reels { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .slot-reel {
+      display: grid;
+      place-items: center;
+      min-width: 0;
+      aspect-ratio: .78;
+      overflow: hidden;
+      border: 2px solid rgba(255,213,95,.28);
+      border-radius: 20px;
+      background: linear-gradient(#f7f1df, #fff 48%, #e9dfca);
+      box-shadow: inset 0 12px 20px rgba(65,38,15,.12), inset 0 -12px 20px rgba(65,38,15,.12);
+    }
+    .slot-symbol { font-size: clamp(52px, 8vw, 82px); filter: drop-shadow(0 7px 5px rgba(0,0,0,.13)); }
+    .slot-reel.spinning .slot-symbol { animation: reelShake .12s linear infinite; filter: blur(2px); }
+    @keyframes reelShake { 50% { transform: translateY(10px) scale(.9); } }
+    .slot-message { min-height: 28px; margin-top: 24px; color: var(--muted); font-size: 15px; font-weight: 800; text-align: center; }
+    .slot-message.win { color: #ffd45f; }
+    .slot-paytable { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .slot-payline {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 9px 10px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      color: var(--muted);
+      background: rgba(255,255,255,.025);
+      font-size: 12px;
+    }
+    .slot-payline strong { color: #ffd45f; }
+
+    .mines-board-wrap {
+      width: min(590px, 100%);
+      padding: 22px;
+      border: 1px solid rgba(97,244,200,.16);
+      border-radius: 26px;
+      background: linear-gradient(145deg, rgba(24,34,40,.96), rgba(12,17,25,.98));
+      box-shadow: 0 28px 70px rgba(0,0,0,.35);
+    }
+    .mines-readout { display: flex; justify-content: space-between; gap: 16px; margin-bottom: 18px; }
+    .mines-stat { min-width: 0; }
+    .mines-stat:last-child { text-align: right; }
+    .mines-stat span { display: block; color: var(--muted); font-size: 11px; font-weight: 750; }
+    .mines-stat strong { display: block; margin-top: 3px; color: var(--accent-2); font-size: 24px; letter-spacing: -.035em; }
+    .mines-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 9px; }
+    .mine-cell {
+      display: grid;
+      place-items: center;
+      min-width: 0;
+      aspect-ratio: 1 / 1;
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 14px;
+      color: var(--text);
+      background: linear-gradient(145deg, #293243, #1a2130);
+      box-shadow: 0 5px 0 #0e131d, inset 0 1px 0 rgba(255,255,255,.07);
+      font-size: clamp(20px, 4vw, 31px);
+      cursor: pointer;
+      transition: transform .12s ease, background .2s ease, box-shadow .2s ease;
+    }
+    .mine-cell:not(:disabled):hover { transform: translateY(-2px); background: linear-gradient(145deg, #344056, #202a3b); }
+    .mine-cell:disabled { cursor: default; }
+    .mine-cell.safe {
+      color: #102018;
+      background: var(--accent-2);
+      box-shadow: 0 3px 0 #279b7b, 0 0 18px rgba(97,244,200,.14);
+    }
+    .mine-cell.mine {
+      background: var(--danger);
+      box-shadow: 0 3px 0 #9f2c38, 0 0 18px rgba(255,89,100,.17);
+    }
+    .mine-cell.revealed-mine { opacity: .48; }
+    .mine-count-row { display: grid; grid-template-columns: 1fr 88px; gap: 10px; align-items: center; }
+    .mine-count-input { height: 44px; }
+    .mine-count-input input { font-size: 16px; }
+    .mines-next-box { border-color: rgba(97,244,200,.18); background: rgba(97,244,200,.05); }
+
+    .simple-history { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+    .simple-history-item {
+      padding: 9px 11px;
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      color: var(--muted);
+      background: rgba(255,255,255,.025);
+      font-size: 12px;
+      font-weight: 800;
+    }
+    .simple-history-item.win { color: var(--accent-2); border-color: rgba(97,244,200,.2); }
+    .simple-history-item.loss { color: #ff7d84; border-color: rgba(255,89,100,.18); }
+
     .error { min-height: 18px; margin: -16px 0 -12px; color: #ff8891; font-size: 12px; text-align: center; }
 
     .history-card {
@@ -753,6 +859,13 @@
       .rocket-stage-card { min-height: auto; padding: 10px; }
       .rocket-stage { height: min(440px, 112vw); border-radius: 18px; }
       .rocket-sprite { font-size: 42px; }
+      .slot-stage-card, .mines-stage-card { min-height: auto; padding: 10px; }
+      .slot-machine { padding: 18px; border-radius: 22px; }
+      .slot-reels { gap: 7px; }
+      .slot-reel { border-radius: 14px; }
+      .mines-board-wrap { padding: 12px; border-radius: 20px; }
+      .mines-grid { gap: 6px; }
+      .mine-cell { border-radius: 10px; box-shadow: 0 3px 0 #0e131d; }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -777,6 +890,8 @@
     <nav class="game-switch" aria-label="Выбор игры">
       <button class="game-tab" type="button" data-game="wheel" aria-selected="true">◉ Колесо</button>
       <button class="game-tab" type="button" data-game="rocket" aria-selected="false">🚀 Ракета</button>
+      <button class="game-tab" type="button" data-game="slots" aria-selected="false">🎰 Слоты</button>
+      <button class="game-tab" type="button" data-game="mines" aria-selected="false">💣 Сапёр</button>
     </nav>
 
     <section class="game-grid game-view" id="wheelGame">
@@ -930,6 +1045,110 @@
         </div>
       </section>
     </section>
+
+    <section class="game-grid game-view" id="slotsGame" hidden>
+      <article class="card slot-stage-card">
+        <div class="slot-machine">
+          <div class="slot-title">✦ COIN SLOTS ✦</div>
+          <div class="slot-reels" aria-label="Барабаны слотов">
+            <div class="slot-reel"><span class="slot-symbol" id="slotSymbol0">🍒</span></div>
+            <div class="slot-reel"><span class="slot-symbol" id="slotSymbol1">⭐</span></div>
+            <div class="slot-reel"><span class="slot-symbol" id="slotSymbol2">💎</span></div>
+          </div>
+          <div class="slot-message" id="slotMessage">Сделай ставку и крути</div>
+        </div>
+      </article>
+
+      <aside class="card controls-card">
+        <div>
+          <p class="eyebrow">Три барабана</p>
+          <h1>Поймай комбинацию</h1>
+          <p class="subtitle">Три одинаковых символа дают крупный множитель, любая пара — 1,2×.</p>
+        </div>
+        <div>
+          <div class="field-head">
+            <label for="slotsBet">Ставка</label>
+            <span class="field-note">макс. <span id="slotsMaxBet">1 000</span></span>
+          </div>
+          <div class="money-input">
+            <span class="coin">₽</span>
+            <input id="slotsBet" type="number" min="1" max="1000" step="1" value="100" inputmode="numeric" aria-describedby="slotsError">
+          </div>
+          <div class="quick-bets slots-quick-bets">
+            <button class="chip" data-slots-bet="50">50</button>
+            <button class="chip" data-slots-bet="100">100</button>
+            <button class="chip" data-slots-action="half">½</button>
+            <button class="chip" data-slots-action="all">Всё</button>
+          </div>
+        </div>
+        <div class="slot-paytable">
+          <div class="slot-payline"><span>7️⃣ 7️⃣ 7️⃣</span><strong>10×</strong></div>
+          <div class="slot-payline"><span>💎 💎 💎</span><strong>7×</strong></div>
+          <div class="slot-payline"><span>🚀 🚀 🚀</span><strong>5×</strong></div>
+          <div class="slot-payline"><span>⭐ ⭐ ⭐</span><strong>4×</strong></div>
+          <div class="slot-payline"><span>🍒 🍒 🍒</span><strong>3×</strong></div>
+          <div class="slot-payline"><span>любая пара</span><strong>1,2×</strong></div>
+        </div>
+        <p class="error" id="slotsError" role="alert"></p>
+        <button class="spin-btn" id="slotsAction" type="button">КРУТИТЬ СЛОТЫ</button>
+      </aside>
+
+      <section class="card history-card">
+        <div class="history-head"><h2>Последние комбинации</h2></div>
+        <div class="simple-history" id="slotsHistory"><div class="empty">История пока пуста.</div></div>
+      </section>
+    </section>
+
+    <section class="game-grid game-view" id="minesGame" hidden>
+      <article class="card mines-stage-card">
+        <div class="mines-board-wrap">
+          <div class="mines-readout">
+            <div class="mines-stat"><span>Текущий множитель</span><strong id="minesMultiplier">1.00×</strong></div>
+            <div class="mines-stat"><span>Можно забрать</span><strong id="minesPayout">0</strong></div>
+          </div>
+          <div class="mines-grid" id="minesGrid" aria-label="Поле сапёра 5 на 5"></div>
+        </div>
+      </article>
+
+      <aside class="card controls-card">
+        <div>
+          <p class="eyebrow">Поле 5×5</p>
+          <h1>Найди безопасные клетки</h1>
+          <p class="subtitle">Открывай клетки и забирай выигрыш до того, как попадётся мина.</p>
+        </div>
+        <div>
+          <div class="field-head">
+            <label for="minesBet">Ставка</label>
+            <span class="field-note">макс. <span id="minesMaxBet">1 000</span></span>
+          </div>
+          <div class="money-input">
+            <span class="coin">₽</span>
+            <input id="minesBet" type="number" min="1" max="1000" step="1" value="100" inputmode="numeric" aria-describedby="minesError">
+          </div>
+          <div class="quick-bets mines-quick-bets">
+            <button class="chip" data-mines-bet="50">50</button>
+            <button class="chip" data-mines-bet="100">100</button>
+            <button class="chip" data-mines-action="half">½</button>
+            <button class="chip" data-mines-action="all">Всё</button>
+          </div>
+        </div>
+        <div>
+          <div class="field-head"><label for="minesCount">Количество мин</label><output class="chance-value" id="minesCountValue">5</output></div>
+          <div class="mine-count-row">
+            <input id="minesCount" type="range" min="1" max="24" step="1" value="5">
+            <div class="chance-number-input mine-count-input"><input id="minesCountNumber" type="number" min="1" max="24" step="1" value="5" inputmode="numeric"><span>💣</span></div>
+          </div>
+        </div>
+        <div class="rocket-info-box mines-next-box"><span>После первой безопасной клетки</span><strong id="minesNextMultiplier">1.25×</strong></div>
+        <p class="error" id="minesError" role="alert"></p>
+        <button class="spin-btn" id="minesAction" type="button">НАЧАТЬ ИГРУ</button>
+      </aside>
+
+      <section class="card history-card">
+        <div class="history-head"><h2>Последние поля</h2></div>
+        <div class="simple-history" id="minesHistory"><div class="empty">История пока пуста.</div></div>
+      </section>
+    </section>
     <p class="footer-note">Демо-игра на виртуальные монеты. Никаких реальных денег.</p>
   </main>
 
@@ -998,6 +1217,28 @@
     const rocketError = document.querySelector('#rocketError');
     const rocketAction = document.querySelector('#rocketAction');
     const rocketHistoryNode = document.querySelector('#rocketHistory');
+    const slotsGame = document.querySelector('#slotsGame');
+    const slotReels = [...document.querySelectorAll('.slot-reel')];
+    const slotSymbols = [0, 1, 2].map(index => document.querySelector(`#slotSymbol${index}`));
+    const slotMessage = document.querySelector('#slotMessage');
+    const slotsBetInput = document.querySelector('#slotsBet');
+    const slotsMaxBet = document.querySelector('#slotsMaxBet');
+    const slotsError = document.querySelector('#slotsError');
+    const slotsAction = document.querySelector('#slotsAction');
+    const slotsHistoryNode = document.querySelector('#slotsHistory');
+    const minesGame = document.querySelector('#minesGame');
+    const minesGrid = document.querySelector('#minesGrid');
+    const minesBetInput = document.querySelector('#minesBet');
+    const minesMaxBet = document.querySelector('#minesMaxBet');
+    const minesCountInput = document.querySelector('#minesCount');
+    const minesCountNumber = document.querySelector('#minesCountNumber');
+    const minesCountValue = document.querySelector('#minesCountValue');
+    const minesMultiplierNode = document.querySelector('#minesMultiplier');
+    const minesPayoutNode = document.querySelector('#minesPayout');
+    const minesNextMultiplier = document.querySelector('#minesNextMultiplier');
+    const minesError = document.querySelector('#minesError');
+    const minesAction = document.querySelector('#minesAction');
+    const minesHistoryNode = document.querySelector('#minesHistory');
 
     function loadSavedBalance() {
       try {
@@ -1044,6 +1285,20 @@
     let rocketStartTime = 0;
     let rocketFrame;
     let rocketHistory = [];
+    let slotsSpinning = false;
+    let slotsHistory = [];
+    let slotTimer;
+    let slotRollInterval;
+    let minesRunning = false;
+    let minesBet = 0;
+    let minesCount = 5;
+    let minesSet = new Set();
+    let minesOpened = new Set();
+    let minesMultiplier = 1;
+    let minesHistory = [];
+
+    const SLOT_SYMBOLS = ['🍒', '⭐', '🚀', '💎', '7️⃣'];
+    const SLOT_TRIPLE_PAYOUTS = { '🍒': 3, '⭐': 4, '🚀': 5, '💎': 7, '7️⃣': 10 };
 
     const money = value => {
       const rounded = Math.abs(value) <= Number.MAX_SAFE_INTEGER / 100
@@ -1145,30 +1400,61 @@
       balanceNode.textContent = money(balance);
       maxBetNode.textContent = money(balance);
       rocketMaxBet.textContent = money(balance);
+      slotsMaxBet.textContent = money(balance);
+      minesMaxBet.textContent = money(balance);
       betInput.max = balance;
       rocketBetInput.max = balance;
+      slotsBetInput.max = balance;
+      minesBetInput.max = balance;
       if (balance <= 0) {
-        spinButton.disabled = true;
-        spinButton.textContent = 'МОНЕТЫ ЗАКОНЧИЛИСЬ';
-        document.querySelectorAll('#wheelGame .quick-bets .chip, .rocket-quick-bets .chip').forEach(button => button.disabled = true);
+        document.querySelectorAll('.quick-bets .chip').forEach(button => button.disabled = true);
+        if (!spinning) {
+          spinButton.disabled = true;
+          spinButton.textContent = 'МОНЕТЫ ЗАКОНЧИЛИСЬ';
+        }
         if (!rocketRunning) {
           rocketAction.disabled = true;
           rocketAction.textContent = 'МОНЕТЫ ЗАКОНЧИЛИСЬ';
         }
-      } else if (!spinning) {
-        if (!Number.isFinite(Number(betInput.value)) || Number(betInput.value) < 1 || Number(betInput.value) > balance) {
-          betInput.value = Math.min(100, balance);
+        if (!slotsSpinning) {
+          slotsAction.disabled = true;
+          slotsAction.textContent = 'МОНЕТЫ ЗАКОНЧИЛИСЬ';
         }
+        if (!minesRunning) {
+          minesAction.disabled = true;
+          minesAction.textContent = 'МОНЕТЫ ЗАКОНЧИЛИСЬ';
+        }
+        return;
+      }
+
+      const normalizeBet = input => {
+        const value = Number(input.value);
+        if (!Number.isFinite(value) || value < 1 || value > balance) input.value = Math.min(100, balance);
+      };
+
+      if (!spinning) {
+        normalizeBet(betInput);
+        document.querySelectorAll('#wheelGame .quick-bets .chip').forEach(button => button.disabled = false);
         spinButton.disabled = false;
         spinButton.textContent = 'КРУТИТЬ КОЛЕСО';
-        if (!rocketRunning) {
-          if (!Number.isFinite(Number(rocketBetInput.value)) || Number(rocketBetInput.value) < 1 || Number(rocketBetInput.value) > balance) {
-            rocketBetInput.value = Math.min(100, balance);
-          }
-          document.querySelectorAll('#wheelGame .quick-bets .chip, .rocket-quick-bets .chip').forEach(button => button.disabled = false);
-          rocketAction.disabled = false;
-          rocketAction.textContent = 'ЗАПУСТИТЬ РАКЕТУ';
-        }
+      }
+      if (!rocketRunning) {
+        normalizeBet(rocketBetInput);
+        document.querySelectorAll('.rocket-quick-bets .chip').forEach(button => button.disabled = false);
+        rocketAction.disabled = false;
+        rocketAction.textContent = 'ЗАПУСТИТЬ РАКЕТУ';
+      }
+      if (!slotsSpinning) {
+        normalizeBet(slotsBetInput);
+        document.querySelectorAll('.slots-quick-bets .chip').forEach(button => button.disabled = false);
+        slotsAction.disabled = false;
+        slotsAction.textContent = 'КРУТИТЬ СЛОТЫ';
+      }
+      if (!minesRunning) {
+        normalizeBet(minesBetInput);
+        document.querySelectorAll('.mines-quick-bets .chip').forEach(button => button.disabled = false);
+        minesAction.disabled = false;
+        minesAction.textContent = 'НАЧАТЬ ИГРУ';
       }
     }
 
@@ -1188,12 +1474,11 @@
     }
 
     function selectGame(game) {
-      if (spinning || rocketRunning) return;
-      const showWheel = game === 'wheel';
-      wheelGame.hidden = !showWheel;
-      rocketGame.hidden = showWheel;
+      if (spinning || rocketRunning || slotsSpinning || minesRunning) return;
+      const views = { wheel: wheelGame, rocket: rocketGame, slots: slotsGame, mines: minesGame };
+      Object.entries(views).forEach(([name, view]) => view.hidden = name !== game);
       gameTabs.forEach(tab => tab.setAttribute('aria-selected', String(tab.dataset.game === game)));
-      if (showWheel) enforceWheelCircle();
+      if (game === 'wheel') enforceWheelCircle();
     }
 
     function validRocketBet() {
@@ -1323,6 +1608,248 @@
       renderRocketHistory();
       finishRocketRound();
       showToast(true, `Ракета: чистый плюс ${money(profit)}`);
+    }
+
+    function validSlotsBet() {
+      const value = Number(slotsBetInput.value);
+      return Number.isFinite(value) && value >= 1 && value <= balance ? value : null;
+    }
+
+    function updateSlotsPreview() {
+      const bet = Number(slotsBetInput.value);
+      if (slotsBetInput.value !== '' && bet < 1) slotsError.textContent = 'Минимальная ставка — 1';
+      else if (bet > balance) slotsError.textContent = 'Ставка больше текущего баланса';
+      else slotsError.textContent = '';
+    }
+
+    function getSlotMultiplier(symbols) {
+      if (symbols[0] === symbols[1] && symbols[1] === symbols[2]) return SLOT_TRIPLE_PAYOUTS[symbols[0]];
+      if (symbols[0] === symbols[1] || symbols[0] === symbols[2] || symbols[1] === symbols[2]) return 1.2;
+      return 0;
+    }
+
+    function renderSlotsHistory() {
+      if (!slotsHistory.length) {
+        slotsHistoryNode.innerHTML = '<div class="empty">История пока пуста.</div>';
+        return;
+      }
+      slotsHistoryNode.innerHTML = slotsHistory.map(item => `
+        <div class="simple-history-item ${item.multiplier > 0 ? 'win' : 'loss'}">
+          ${item.symbols.join(' ')} · ${item.multiplier > 0 ? `${item.multiplier.toFixed(1)}×` : 'мимо'}
+        </div>
+      `).join('');
+    }
+
+    function startSlots() {
+      if (slotsSpinning) return;
+      const bet = validSlotsBet();
+      if (!bet) {
+        slotsError.textContent = balance <= 0 ? 'Пополни баланс для вращения' : 'Введи ставку от 1 до размера баланса';
+        slotsBetInput.focus();
+        return;
+      }
+
+      slotsSpinning = true;
+      balance = Math.round((balance - bet + Number.EPSILON) * 100) / 100;
+      slotsBetInput.disabled = true;
+      document.querySelectorAll('.slots-quick-bets .chip').forEach(button => button.disabled = true);
+      slotsAction.disabled = true;
+      slotsAction.textContent = 'БАРАБАНЫ КРУТЯТСЯ…';
+      setGameTabsDisabled(true);
+      slotMessage.className = 'slot-message';
+      slotMessage.textContent = 'Ловим комбинацию…';
+      slotReels.forEach(reel => reel.classList.add('spinning'));
+      updateBalance();
+
+      const result = slotSymbols.map(() => SLOT_SYMBOLS[Math.floor(randomUnit() * SLOT_SYMBOLS.length)]);
+      slotRollInterval = setInterval(() => {
+        slotSymbols.forEach(node => node.textContent = SLOT_SYMBOLS[Math.floor(randomUnit() * SLOT_SYMBOLS.length)]);
+      }, 85);
+
+      slotTimer = setTimeout(() => {
+        clearInterval(slotRollInterval);
+        slotSymbols.forEach((node, index) => node.textContent = result[index]);
+        slotReels.forEach(reel => reel.classList.remove('spinning'));
+        const multiplier = getSlotMultiplier(result);
+        const payout = Math.round((bet * multiplier + Number.EPSILON) * 100) / 100;
+        if (multiplier > 0) balance = Math.round((balance + payout + Number.EPSILON) * 100) / 100;
+
+        slotsHistory.unshift({ symbols: result, multiplier });
+        slotsHistory = slotsHistory.slice(0, 10);
+        renderSlotsHistory();
+        slotsSpinning = false;
+        slotsBetInput.disabled = false;
+        setGameTabsDisabled(false);
+        updateBalance();
+        updateSlotsPreview();
+
+        if (multiplier > 0) {
+          slotMessage.className = 'slot-message win';
+          slotMessage.textContent = `Выигрыш ${money(payout)} · ${multiplier.toFixed(1)}×`;
+          showToast(true, `Слоты: выигрыш ${money(payout)}`);
+        } else {
+          slotMessage.className = 'slot-message';
+          slotMessage.textContent = 'Комбинация не сыграла';
+          showToast(false, `Слоты: ставка ${money(bet)} проиграна`);
+        }
+      }, 1250);
+    }
+
+    function calculateMinesMultiplier(safeOpened, mineTotal = minesCount) {
+      let multiplier = 1;
+      for (let index = 0; index < safeOpened; index += 1) {
+        multiplier *= (25 - index) / (25 - mineTotal - index);
+      }
+      return multiplier;
+    }
+
+    function renderMinesHistory() {
+      if (!minesHistory.length) {
+        minesHistoryNode.innerHTML = '<div class="empty">История пока пуста.</div>';
+        return;
+      }
+      minesHistoryNode.innerHTML = minesHistory.map(item => `
+        <div class="simple-history-item ${item.win ? 'win' : 'loss'}">
+          ${item.win ? '✓' : '💥'} ${item.mines} мин · ${item.safe} клет. · ${item.multiplier.toFixed(2)}×
+        </div>
+      `).join('');
+    }
+
+    function updateMinesPreview() {
+      const mineValue = Math.max(1, Math.min(24, Math.round(Number(minesCountNumber.value) || 1)));
+      minesCount = mineValue;
+      minesCountInput.value = mineValue;
+      minesCountNumber.value = mineValue;
+      minesCountValue.textContent = mineValue;
+      minesNextMultiplier.textContent = `${calculateMinesMultiplier(1, mineValue).toFixed(2)}×`;
+
+      const bet = Number(minesBetInput.value);
+      if (minesBetInput.value !== '' && bet < 1) minesError.textContent = 'Минимальная ставка — 1';
+      else if (bet > balance) minesError.textContent = 'Ставка больше текущего баланса';
+      else minesError.textContent = '';
+    }
+
+    function buildMinesGrid() {
+      minesGrid.innerHTML = Array.from({ length: 25 }, (_, index) =>
+        `<button class="mine-cell" type="button" data-cell="${index}" aria-label="Клетка ${index + 1}" disabled></button>`
+      ).join('');
+      minesGrid.querySelectorAll('.mine-cell').forEach(cell => {
+        cell.addEventListener('click', () => openMineCell(Number(cell.dataset.cell)));
+      });
+    }
+
+    function chooseMinePositions(total) {
+      const positions = Array.from({ length: 25 }, (_, index) => index);
+      for (let index = positions.length - 1; index > 0; index -= 1) {
+        const swapIndex = Math.floor(randomUnit() * (index + 1));
+        [positions[index], positions[swapIndex]] = [positions[swapIndex], positions[index]];
+      }
+      return new Set(positions.slice(0, total));
+    }
+
+    function lockMinesControls(locked) {
+      minesBetInput.disabled = locked;
+      minesCountInput.disabled = locked;
+      minesCountNumber.disabled = locked;
+      document.querySelectorAll('.mines-quick-bets .chip').forEach(button => button.disabled = locked);
+      setGameTabsDisabled(locked);
+    }
+
+    function revealAllMines(faded = false) {
+      minesSet.forEach(index => {
+        const cell = minesGrid.querySelector(`[data-cell="${index}"]`);
+        if (!cell.classList.contains('mine')) {
+          cell.textContent = '💣';
+          cell.classList.add(faded ? 'revealed-mine' : 'mine');
+        }
+      });
+      minesGrid.querySelectorAll('.mine-cell').forEach(cell => cell.disabled = true);
+    }
+
+    function finishMinesRound(win, cashedMultiplier = minesMultiplier) {
+      minesRunning = false;
+      lockMinesControls(false);
+      minesHistory.unshift({ win, mines: minesCount, safe: minesOpened.size, multiplier: cashedMultiplier });
+      minesHistory = minesHistory.slice(0, 10);
+      renderMinesHistory();
+      updateBalance();
+      updateMinesPreview();
+    }
+
+    function loseMines(index) {
+      const cell = minesGrid.querySelector(`[data-cell="${index}"]`);
+      cell.textContent = '💣';
+      cell.classList.add('mine');
+      revealAllMines();
+      minesMultiplierNode.style.color = 'var(--danger)';
+      minesPayoutNode.textContent = '0';
+      minesAction.textContent = 'НОВАЯ ИГРА';
+      finishMinesRound(false);
+      showToast(false, `Сапёр: мина после ${minesOpened.size} безопасных клеток`);
+    }
+
+    function cashOutMines(auto = false) {
+      if (!minesRunning || minesOpened.size === 0) return;
+      const payout = Math.round((minesBet * minesMultiplier + Number.EPSILON) * 100) / 100;
+      balance = Math.round((balance + payout + Number.EPSILON) * 100) / 100;
+      revealAllMines(true);
+      minesMultiplierNode.style.color = 'var(--accent-2)';
+      minesAction.textContent = 'НОВАЯ ИГРА';
+      finishMinesRound(true, minesMultiplier);
+      showToast(true, `Сапёр: забрано ${money(payout)}${auto ? ' · поле пройдено' : ''}`);
+    }
+
+    function openMineCell(index) {
+      if (!minesRunning || minesOpened.has(index)) return;
+      if (minesSet.has(index)) {
+        loseMines(index);
+        return;
+      }
+
+      minesOpened.add(index);
+      const cell = minesGrid.querySelector(`[data-cell="${index}"]`);
+      cell.textContent = '◆';
+      cell.classList.add('safe');
+      cell.disabled = true;
+      minesMultiplier = calculateMinesMultiplier(minesOpened.size);
+      const payout = minesBet * minesMultiplier;
+      minesMultiplierNode.textContent = `${minesMultiplier.toFixed(2)}×`;
+      minesPayoutNode.textContent = money(payout);
+      minesAction.disabled = false;
+      minesAction.textContent = `ЗАБРАТЬ ${money(payout)}`;
+
+      if (minesOpened.size === 25 - minesCount) cashOutMines(true);
+    }
+
+    function startMines() {
+      const bet = Number(minesBetInput.value);
+      if (!Number.isFinite(bet) || bet < 1 || bet > balance) {
+        minesError.textContent = balance <= 0 ? 'Пополни баланс для новой игры' : 'Введи ставку от 1 до размера баланса';
+        minesBetInput.focus();
+        return;
+      }
+
+      minesRunning = true;
+      minesBet = bet;
+      minesCount = Math.max(1, Math.min(24, Math.round(Number(minesCountNumber.value) || 1)));
+      minesSet = chooseMinePositions(minesCount);
+      minesOpened = new Set();
+      minesMultiplier = 1;
+      balance = Math.round((balance - bet + Number.EPSILON) * 100) / 100;
+      lockMinesControls(true);
+      updateBalance();
+
+      minesGrid.querySelectorAll('.mine-cell').forEach(cell => {
+        cell.disabled = false;
+        cell.textContent = '';
+        cell.className = 'mine-cell';
+      });
+      minesMultiplierNode.style.color = '';
+      minesMultiplierNode.textContent = '1.00×';
+      minesPayoutNode.textContent = '0';
+      minesAction.disabled = true;
+      minesAction.textContent = 'ОТКРОЙ КЛЕТКУ';
+      minesError.textContent = '';
     }
 
     function stopSpinSound() {
@@ -1565,6 +2092,36 @@
       else startRocket();
     });
 
+    slotsBetInput.addEventListener('input', updateSlotsPreview);
+    document.querySelectorAll('.slots-quick-bets .chip').forEach(button => {
+      button.addEventListener('click', () => {
+        if (button.dataset.slotsBet) slotsBetInput.value = Math.min(Number(button.dataset.slotsBet), balance);
+        if (button.dataset.slotsAction === 'half') slotsBetInput.value = Math.max(1, Math.floor(balance / 2));
+        if (button.dataset.slotsAction === 'all') slotsBetInput.value = balance;
+        updateSlotsPreview();
+      });
+    });
+    slotsAction.addEventListener('click', startSlots);
+
+    minesBetInput.addEventListener('input', updateMinesPreview);
+    minesCountInput.addEventListener('input', () => {
+      minesCountNumber.value = minesCountInput.value;
+      updateMinesPreview();
+    });
+    minesCountNumber.addEventListener('input', updateMinesPreview);
+    document.querySelectorAll('.mines-quick-bets .chip').forEach(button => {
+      button.addEventListener('click', () => {
+        if (button.dataset.minesBet) minesBetInput.value = Math.min(Number(button.dataset.minesBet), balance);
+        if (button.dataset.minesAction === 'half') minesBetInput.value = Math.max(1, Math.floor(balance / 2));
+        if (button.dataset.minesAction === 'all') minesBetInput.value = balance;
+        updateMinesPreview();
+      });
+    });
+    minesAction.addEventListener('click', () => {
+      if (minesRunning) cashOutMines();
+      else startMines();
+    });
+
     function openTopup() {
       topupModal.hidden = false;
       topupError.textContent = '';
@@ -1598,6 +2155,8 @@
       updateBalance();
       updatePreview();
       updateRocketPreview();
+      updateSlotsPreview();
+      updateMinesPreview();
       closeTopup();
       showToast(true, `Баланс пополнен на ${money(amount)}`);
     }
@@ -1633,12 +2192,19 @@
     }
 
     document.querySelector('#reset').addEventListener('click', () => {
-      if (spinning) return;
+      if (spinning || rocketRunning || slotsSpinning || minesRunning) return;
       balance = START_BALANCE;
       history = [];
       rocketHistory = [];
+      slotsHistory = [];
+      minesHistory = [];
       betInput.value = 100;
       rocketBetInput.value = 100;
+      slotsBetInput.value = 100;
+      minesBetInput.value = 100;
+      minesCountInput.value = 5;
+      minesCountNumber.value = 5;
+      minesCount = 5;
       chanceInput.value = 25;
       chanceNumberInput.value = 25;
       currentChance = 25;
@@ -1648,16 +2214,24 @@
       spinButton.textContent = 'КРУТИТЬ КОЛЕСО';
       renderHistory();
       renderRocketHistory();
+      renderSlotsHistory();
+      renderMinesHistory();
+      buildMinesGrid();
       updateBalance();
       updatePreview();
       updateRocketPreview();
+      updateSlotsPreview();
+      updateMinesPreview();
       showToast(true, 'Новая игра: на балансе 1 000');
     });
 
+    buildMinesGrid();
     enforceWheelCircle();
     updateBalance();
     updatePreview();
     updateRocketPreview();
+    updateSlotsPreview();
+    updateMinesPreview();
   </script>
 </body>
 </html>
