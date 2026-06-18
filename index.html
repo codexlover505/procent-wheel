@@ -183,8 +183,13 @@
     .wheel-shell {
       position: relative;
       z-index: 2;
-      width: min(500px, 76vw);
-      aspect-ratio: 1;
+      --wheel-size: min(500px, 76vw);
+      width: var(--wheel-size);
+      height: var(--wheel-size);
+      min-width: 0;
+      min-height: 0;
+      aspect-ratio: 1 / 1;
+      flex: 0 0 auto;
       border-radius: 50%;
       padding: 13px;
       background: linear-gradient(145deg, #363e4d, #151922 55%, #3a4251);
@@ -580,7 +585,7 @@
       .card { border-radius: 22px; }
       .wheel-card { min-height: 445px; padding: 50px 14px 24px; }
       .pointer { top: 28px; width: 38px; height: 50px; }
-      .wheel-shell { width: min(360px, 86vw); padding: 9px; }
+      .wheel-shell { --wheel-size: min(360px, 86vw); padding: 9px; }
       .hub { width: 112px; height: 112px; }
       .hub strong { font-size: 27px; }
       .wheel-legend { margin-top: 18px; }
@@ -670,11 +675,11 @@
         <div class="payout-box" id="payoutBox">
           <div class="payout-copy">
             <span>Выигрыш при попадании</span>
-            <small>Можно ввести свою сумму</small>
+            <small>Можно ввести свою сумму · уменьшение 5% уже учтено</small>
           </div>
           <div class="payout-input">
             <span class="coin">₽</span>
-            <input id="payout" type="number" min="0.01" step="0.01" value="400" inputmode="decimal" aria-label="Желаемый выигрыш">
+            <input id="payout" type="number" min="0.01" step="0.01" value="380" inputmode="decimal" aria-label="Желаемый выигрыш">
           </div>
         </div>
 
@@ -722,6 +727,7 @@
     const START_BALANCE = 1000;
     const MIN_CHANCE = 0.01;
     const MAX_CHANCE = 80;
+    const PAYOUT_FACTOR = 0.95;
     const wheel = document.querySelector('#wheel');
     const chanceInput = document.querySelector('#chance');
     const chanceNumberInput = document.querySelector('#chanceNumber');
@@ -746,7 +752,7 @@
     let balance = START_BALANCE;
     let rotation = 0;
     let currentChance = 25;
-    let desiredPayout = 400;
+    let desiredPayout = 380;
     let selectionMode = 'chance';
     let spinning = false;
     let soundEnabled = true;
@@ -789,7 +795,7 @@
       const payout = validPayout();
       if (!Number.isFinite(bet) || bet < 1 || payout === null) return false;
 
-      const chance = bet * 100 / payout;
+      const chance = bet * 100 * PAYOUT_FACTOR / payout;
       if (!Number.isFinite(chance) || chance < MIN_CHANCE || chance > MAX_CHANCE) return false;
 
       desiredPayout = payout;
@@ -803,7 +809,7 @@
       const bet = Number(betInput.value);
       const chance = validChance();
       const payout = validPayout();
-      const impliedChance = bet > 0 && payout !== null ? bet * 100 / payout : null;
+      const impliedChance = bet > 0 && payout !== null ? bet * 100 * PAYOUT_FACTOR / payout : null;
       const payoutInvalid = selectionMode === 'payout' && (
         payout === null || impliedChance === null || impliedChance < MIN_CHANCE || impliedChance > MAX_CHANCE
       );
@@ -814,15 +820,15 @@
       else if (bet > balance) errorNode.textContent = 'Ставка больше текущего баланса';
       else if (betInput.value !== '' && bet < 1) errorNode.textContent = 'Минимальная ставка — 1';
       else if (selectionMode === 'payout' && payout === null) errorNode.textContent = 'Выигрыш должен быть больше нуля';
-      else if (selectionMode === 'payout' && impliedChance !== null && impliedChance < MIN_CHANCE) errorNode.textContent = `Максимальный выигрыш для этой ставки — ${money(bet * 100 / MIN_CHANCE)}`;
-      else if (selectionMode === 'payout' && impliedChance !== null && impliedChance > MAX_CHANCE) errorNode.textContent = `Минимальный выигрыш для этой ставки — ${money(bet * 100 / MAX_CHANCE)}`;
+      else if (selectionMode === 'payout' && impliedChance !== null && impliedChance < MIN_CHANCE) errorNode.textContent = `Максимальный выигрыш для этой ставки — ${money(bet * 100 * PAYOUT_FACTOR / MIN_CHANCE)}`;
+      else if (selectionMode === 'payout' && impliedChance !== null && impliedChance > MAX_CHANCE) errorNode.textContent = `Минимальный выигрыш для этой ставки — ${money(bet * 100 * PAYOUT_FACTOR / MAX_CHANCE)}`;
       else errorNode.textContent = '';
     }
 
     function updatePreview() {
       const chance = currentChance;
       const bet = Math.max(0, Number(betInput.value) || 0);
-      const payout = bet * 100 / chance;
+      const payout = bet * 100 * PAYOUT_FACTOR / chance;
 
       document.documentElement.style.setProperty('--chance-deg', `${chance * 3.6}deg`);
       document.documentElement.style.setProperty('--range-fill', `${(chance - MIN_CHANCE) / (MAX_CHANCE - MIN_CHANCE) * 100}%`);
@@ -836,8 +842,8 @@
           : payout;
       }
       if (bet > 0) {
-        payoutNode.min = bet * 100 / MAX_CHANCE;
-        payoutNode.max = bet * 100 / MIN_CHANCE;
+        payoutNode.min = bet * 100 * PAYOUT_FACTOR / MAX_CHANCE;
+        payoutNode.max = bet * 100 * PAYOUT_FACTOR / MIN_CHANCE;
       }
       updateError();
     }
@@ -983,7 +989,7 @@
       currentChance = chance;
       const landedAngle = randomAngle();
       const won = landedAngle < chance * 3.6;
-      const payout = selectionMode === 'payout' ? desiredPayout : bet * 100 / chance;
+      const payout = selectionMode === 'payout' ? desiredPayout : bet * 100 * PAYOUT_FACTOR / chance;
       const targetModulo = (360 - landedAngle) % 360;
       const currentModulo = ((rotation % 360) + 360) % 360;
       const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -1150,7 +1156,7 @@
       chanceInput.value = 25;
       chanceNumberInput.value = 25;
       currentChance = 25;
-      desiredPayout = 400;
+      desiredPayout = 380;
       selectionMode = 'chance';
       spinButton.disabled = false;
       spinButton.textContent = 'КРУТИТЬ КОЛЕСО';
