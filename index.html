@@ -165,6 +165,8 @@
     .game-switch {
       display: flex;
       width: fit-content;
+      max-width: 100%;
+      overflow-x: auto;
       margin: 0 auto 18px;
       padding: 5px;
       border: 1px solid var(--line);
@@ -734,6 +736,133 @@
     .mine-count-input input { font-size: 16px; }
     .mines-next-box { border-color: rgba(97,244,200,.18); background: rgba(97,244,200,.05); }
 
+    .case-stage-card, .mystery-stage-card {
+      min-height: 650px;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      padding: 28px;
+    }
+    .case-arena {
+      width: min(700px, 100%);
+      padding: 26px;
+      border: 1px solid rgba(168,155,255,.22);
+      border-radius: 28px;
+      background: radial-gradient(circle at 50% 10%, rgba(168,155,255,.14), transparent 40%), linear-gradient(145deg, #17152b, #0d111b 68%);
+      box-shadow: 0 30px 75px rgba(0,0,0,.4);
+    }
+    .case-showcase { display: grid; place-items: center; min-height: 210px; text-align: center; }
+    .case-icon { font-size: 92px; filter: drop-shadow(0 18px 30px rgba(168,155,255,.24)); }
+    .case-showcase h2 { margin: 10px 0 4px; font-size: 27px; letter-spacing: -.04em; }
+    .case-showcase p { margin: 0; color: #a89bff; font-size: 13px; font-weight: 800; }
+    .case-reel-window {
+      position: relative;
+      width: 100%;
+      overflow: hidden;
+      padding: 12px 0;
+      border: 1px solid rgba(255,255,255,.09);
+      border-radius: 18px;
+      background: rgba(5,7,12,.72);
+      box-shadow: inset 0 0 34px rgba(0,0,0,.45);
+    }
+    .case-reel-window::before, .case-reel-window::after {
+      content: "";
+      position: absolute;
+      z-index: 4;
+      top: 0;
+      bottom: 0;
+      width: 16%;
+      pointer-events: none;
+    }
+    .case-reel-window::before { left: 0; background: linear-gradient(90deg, #090c14, transparent); }
+    .case-reel-window::after { right: 0; background: linear-gradient(-90deg, #090c14, transparent); }
+    .case-marker {
+      position: absolute;
+      z-index: 5;
+      top: 0;
+      bottom: 0;
+      left: 50%;
+      width: 2px;
+      transform: translateX(-50%);
+      background: #fff;
+      box-shadow: 0 0 16px rgba(255,255,255,.75);
+      pointer-events: none;
+    }
+    .case-marker::before, .case-marker::after { content: ""; position: absolute; left: 50%; transform: translateX(-50%); border: 7px solid transparent; }
+    .case-marker::before { top: 0; border-top-color: #fff; }
+    .case-marker::after { bottom: 0; border-bottom-color: #fff; }
+    .case-reel { display: flex; gap: 10px; width: max-content; transform: translateX(0); will-change: transform; }
+    .case-roll-item {
+      flex: 0 0 124px;
+      display: grid;
+      place-items: center;
+      min-height: 112px;
+      padding: 12px 8px;
+      border: 1px solid var(--line);
+      border-bottom: 4px solid #7d879d;
+      border-radius: 14px;
+      background: linear-gradient(145deg, #202634, #131824);
+      text-align: center;
+    }
+    .case-roll-item span { display: block; font-size: 30px; }
+    .case-roll-item strong { display: block; margin-top: 8px; font-size: 15px; }
+    .tier-uncommon { border-bottom-color: #61f4c8; }
+    .tier-rare { border-bottom-color: #55a7ff; }
+    .tier-epic { border-bottom-color: #a89bff; }
+    .tier-legendary { border-bottom-color: #ff66c4; }
+    .tier-mythic { border-bottom-color: #ffd45f; box-shadow: 0 0 22px rgba(255,212,95,.12); }
+    .case-result { min-height: 26px; margin-top: 18px; color: var(--muted); font-size: 15px; font-weight: 850; text-align: center; }
+    .case-result.win { color: #ffd45f; }
+    .case-selector { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 9px; }
+    .case-option {
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      color: var(--muted);
+      background: rgba(255,255,255,.025);
+      text-align: left;
+      cursor: pointer;
+    }
+    .case-option span, .case-option strong { display: block; }
+    .case-option span { font-size: 12px; font-weight: 850; }
+    .case-option strong { margin-top: 5px; color: var(--text); font-size: 15px; }
+    .case-option.active { color: #171225; border-color: #a89bff; background: #a89bff; }
+    .case-option.active strong { color: #171225; }
+    .case-drops { display: grid; gap: 6px; }
+    .case-drop { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 10px; color: var(--muted); background: rgba(255,255,255,.02); font-size: 12px; }
+    .case-drop strong { color: var(--text); }
+
+    .mystery-arena {
+      width: min(650px, 100%);
+      min-height: 530px;
+      display: grid;
+      place-items: center;
+      padding: 34px;
+      border: 1px solid rgba(255,102,196,.22);
+      border-radius: 30px;
+      background: radial-gradient(circle at 50% 42%, rgba(255,102,196,.14), transparent 35%), linear-gradient(145deg, #201229, #0c101a 72%);
+      text-align: center;
+    }
+    .mystery-orb {
+      display: grid;
+      place-items: center;
+      width: min(290px, 62vw);
+      aspect-ratio: 1;
+      border: 1px solid rgba(255,255,255,.2);
+      border-radius: 50%;
+      background: radial-gradient(circle at 36% 30%, rgba(255,255,255,.28), transparent 18%), radial-gradient(circle, #9d4dff, #36154f 64%, #100b1a);
+      box-shadow: 0 0 65px rgba(157,77,255,.24), inset 0 0 45px rgba(255,255,255,.08);
+    }
+    .mystery-orb.rolling { animation: mysteryPulse .42s ease-in-out infinite alternate; }
+    @keyframes mysteryPulse { to { transform: scale(1.045) rotate(3deg); filter: hue-rotate(35deg) brightness(1.2); } }
+    .mystery-value { font-size: clamp(48px, 9vw, 78px); font-weight: 950; letter-spacing: -.07em; text-shadow: 0 10px 30px rgba(0,0,0,.4); }
+    .mystery-caption { margin-top: 24px; color: var(--muted); font-size: 14px; font-weight: 750; }
+    .mystery-table { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 7px; }
+    .mystery-odd { padding: 9px 8px; border: 1px solid var(--line); border-radius: 10px; background: rgba(255,255,255,.025); text-align: center; }
+    .mystery-odd strong, .mystery-odd span { display: block; }
+    .mystery-odd strong { color: #d9a6ff; font-size: 13px; }
+    .mystery-odd span { margin-top: 3px; color: var(--muted); font-size: 10px; }
+
     .simple-history { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
     .simple-history-item {
       padding: 9px 11px;
@@ -875,6 +1004,8 @@
 
     @media (max-width: 880px) {
       .game-grid { grid-template-columns: 1fr; }
+      .game-switch { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); width: 100%; }
+      .game-tab { min-width: 0; padding-inline: 8px; }
       .wheel-card { min-height: 570px; }
       .history-card { grid-column: auto; }
       .history-list { grid-template-columns: repeat(3, minmax(0,1fr)); }
@@ -909,12 +1040,21 @@
       .wheel-legend { margin-top: 18px; }
       .controls-card { padding: 22px; gap: 23px; }
       .history-list { grid-template-columns: repeat(2, minmax(0,1fr)); }
-      .game-switch { width: 100%; }
-      .game-tab { flex: 1; min-width: 0; padding-inline: 8px; }
+      .game-switch { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); width: 100%; }
+      .game-tab { min-width: 0; padding: 9px 5px; font-size: 11px; }
       .rocket-stage-card { min-height: auto; padding: 10px; }
       .rocket-stage { height: min(440px, 112vw); border-radius: 18px; }
       .rocket-sprite { font-size: 42px; }
       .slot-stage-card, .mines-stage-card { min-height: auto; padding: 10px; }
+      .case-stage-card, .mystery-stage-card { min-height: auto; padding: 10px; }
+      .case-arena, .mystery-arena { padding: 16px; border-radius: 20px; }
+      .case-showcase { min-height: 160px; }
+      .case-icon { font-size: 68px; }
+      .case-roll-item { flex-basis: 92px; min-height: 94px; }
+      .case-roll-item span { font-size: 24px; }
+      .case-roll-item strong { font-size: 12px; }
+      .mystery-arena { min-height: 430px; }
+      .mystery-table { grid-template-columns: repeat(2, minmax(0,1fr)); }
       .slot-machine { padding: 18px; border-radius: 22px; }
       .slot-reels { gap: 7px; }
       .slot-reel { border-radius: 14px; }
@@ -942,7 +1082,7 @@
         <button class="account-btn" id="accountOpen" type="button">Войти</button>
         <div class="balance-wrap">
           <p class="eyebrow">Твой баланс</p>
-          <div class="balance"><span class="coin">₽</span><span id="balance">1 000</span></div>
+          <div class="balance"><span class="coin">₽</span><span id="balance">0</span></div>
         </div>
       </div>
     </header>
@@ -952,6 +1092,8 @@
       <button class="game-tab" type="button" data-game="rocket" aria-selected="false">🚀 Ракета</button>
       <button class="game-tab" type="button" data-game="slots" aria-selected="false">🎰 Слоты</button>
       <button class="game-tab" type="button" data-game="mines" aria-selected="false">💣 Сапёр</button>
+      <button class="game-tab" type="button" data-game="cases" aria-selected="false">📦 Кейсы</button>
+      <button class="game-tab" type="button" data-game="mystery" aria-selected="false">✨ Mystery</button>
     </nav>
 
     <section class="game-grid game-view" id="wheelGame">
@@ -1017,11 +1159,11 @@
         <div class="payout-box" id="payoutBox">
           <div class="payout-copy">
             <span>Выигрыш при попадании</span>
-            <small>Можно ввести свою сумму · уменьшение 5% уже учтено</small>
+            <small>Можно ввести свою сумму · выплата без уменьшения</small>
           </div>
           <div class="payout-input">
             <span class="coin">₽</span>
-            <input id="payout" type="number" min="0.01" step="0.01" value="380" inputmode="decimal" aria-label="Желаемый выигрыш">
+            <input id="payout" type="number" min="0.01" step="0.01" value="400" inputmode="decimal" aria-label="Желаемый выигрыш">
           </div>
         </div>
 
@@ -1209,6 +1351,94 @@
         <div class="simple-history" id="minesHistory"><div class="empty">История пока пуста.</div></div>
       </section>
     </section>
+
+    <section class="game-grid game-view" id="casesGame" hidden>
+      <article class="card case-stage-card">
+        <div class="case-arena">
+          <div class="case-showcase">
+            <div>
+              <div class="case-icon" id="caseIcon">📦</div>
+              <h2 id="caseTitle">Стартовый кейс</h2>
+              <p>Стоимость: <span id="caseStagePrice">100</span> коинов</p>
+            </div>
+          </div>
+          <div class="case-reel-window" id="caseReelWindow">
+            <div class="case-marker" aria-hidden="true"></div>
+            <div class="case-reel" id="caseReel">
+              <div class="case-roll-item tier-common"><div><span>🪙</span><strong>20</strong></div></div>
+              <div class="case-roll-item tier-uncommon"><div><span>💵</span><strong>50</strong></div></div>
+              <div class="case-roll-item tier-rare"><div><span>💰</span><strong>100</strong></div></div>
+            </div>
+          </div>
+          <div class="case-result" id="caseResult">Выбери кейс и открой его</div>
+        </div>
+      </article>
+
+      <aside class="card controls-card">
+        <div>
+          <p class="eyebrow">Case opening</p>
+          <h1>Испытай свою удачу</h1>
+          <p class="subtitle">Цена и всё содержимое известны заранее. Результат останавливается под центральной стрелкой.</p>
+        </div>
+        <div class="case-selector" id="caseSelector">
+          <button class="case-option active" type="button" data-case="starter"><span>📦 Стартовый</span><strong>100</strong></button>
+          <button class="case-option" type="button" data-case="neon"><span>💠 Неоновый</span><strong>1 000</strong></button>
+          <button class="case-option" type="button" data-case="elite"><span>👑 Элитный</span><strong>10 000</strong></button>
+          <button class="case-option" type="button" data-case="legend"><span>🔥 Легенда</span><strong>100 000</strong></button>
+        </div>
+        <div>
+          <div class="field-head"><label>Что может выпасть</label><span class="field-note">шанс</span></div>
+          <div class="case-drops" id="caseDrops"></div>
+        </div>
+        <p class="error" id="caseError" role="alert"></p>
+        <button class="spin-btn" id="caseAction" type="button">ОТКРЫТЬ ЗА 100</button>
+      </aside>
+
+      <section class="card history-card">
+        <div class="history-head"><h2>Последние открытия</h2></div>
+        <div class="simple-history" id="caseHistory"><div class="empty">Кейсы ещё не открывались.</div></div>
+      </section>
+    </section>
+
+    <section class="game-grid game-view" id="mysteryGame" hidden>
+      <article class="card mystery-stage-card">
+        <div class="mystery-arena">
+          <div>
+            <div class="mystery-orb" id="mysteryOrb"><span class="mystery-value" id="mysteryValue">?</span></div>
+            <div class="mystery-caption" id="mysteryCaption">Множитель изменит поставленную сумму</div>
+          </div>
+        </div>
+      </article>
+
+      <aside class="card controls-card">
+        <div>
+          <p class="eyebrow">Mystery Upgrade</p>
+          <h1>От ×0,1 до ×50</h1>
+          <p class="subtitle">Случайный апгрейд может уменьшить ставку в 10 раз или превратить её в огромный выигрыш.</p>
+        </div>
+        <div>
+          <div class="field-head"><label for="mysteryBet">Сумма апгрейда</label><span class="field-note">макс. <span id="mysteryMaxBet">0</span></span></div>
+          <div class="money-input"><span class="coin">₽</span><input id="mysteryBet" type="number" min="1" step="1" value="100" inputmode="numeric" aria-describedby="mysteryError"></div>
+          <div class="quick-bets mystery-quick-bets">
+            <button class="chip" data-mystery-bet="50">50</button>
+            <button class="chip" data-mystery-bet="100">100</button>
+            <button class="chip" data-mystery-action="half">½</button>
+            <button class="chip" data-mystery-action="all">Всё</button>
+          </div>
+        </div>
+        <div>
+          <div class="field-head"><label>Возможные множители</label><span class="field-note">шанс</span></div>
+          <div class="mystery-table" id="mysteryTable"></div>
+        </div>
+        <p class="error" id="mysteryError" role="alert"></p>
+        <button class="spin-btn" id="mysteryAction" type="button">ЗАПУСТИТЬ АПГРЕЙД</button>
+      </aside>
+
+      <section class="card history-card">
+        <div class="history-head"><h2>Последние апгрейды</h2></div>
+        <div class="simple-history" id="mysteryHistory"><div class="empty">Апгрейдов ещё не было.</div></div>
+      </section>
+    </section>
     <p class="footer-note">Демо-игра на виртуальные монеты. Никаких реальных денег.</p>
   </main>
 
@@ -1255,6 +1485,8 @@
         <div class="profile-stat"><span>Ракета</span><strong id="statRocket">0</strong></div>
         <div class="profile-stat"><span>Слоты</span><strong id="statSlots">0</strong></div>
         <div class="profile-stat"><span>Сапёр</span><strong id="statMines">0</strong></div>
+        <div class="profile-stat"><span>Кейсы</span><strong id="statCases">0</strong></div>
+        <div class="profile-stat"><span>Mystery</span><strong id="statMystery">0</strong></div>
       </div>
       <div class="profile-section">
         <h3>Сменить пароль</h3>
@@ -1373,6 +1605,28 @@
     const minesError = document.querySelector('#minesError');
     const minesAction = document.querySelector('#minesAction');
     const minesHistoryNode = document.querySelector('#minesHistory');
+    const casesGame = document.querySelector('#casesGame');
+    const caseSelector = document.querySelector('#caseSelector');
+    const caseDrops = document.querySelector('#caseDrops');
+    const caseReelWindow = document.querySelector('#caseReelWindow');
+    const caseReel = document.querySelector('#caseReel');
+    const caseIcon = document.querySelector('#caseIcon');
+    const caseTitle = document.querySelector('#caseTitle');
+    const caseStagePrice = document.querySelector('#caseStagePrice');
+    const caseResult = document.querySelector('#caseResult');
+    const caseError = document.querySelector('#caseError');
+    const caseAction = document.querySelector('#caseAction');
+    const caseHistoryNode = document.querySelector('#caseHistory');
+    const mysteryGame = document.querySelector('#mysteryGame');
+    const mysteryOrb = document.querySelector('#mysteryOrb');
+    const mysteryValue = document.querySelector('#mysteryValue');
+    const mysteryCaption = document.querySelector('#mysteryCaption');
+    const mysteryBetInput = document.querySelector('#mysteryBet');
+    const mysteryMaxBet = document.querySelector('#mysteryMaxBet');
+    const mysteryTable = document.querySelector('#mysteryTable');
+    const mysteryError = document.querySelector('#mysteryError');
+    const mysteryAction = document.querySelector('#mysteryAction');
+    const mysteryHistoryNode = document.querySelector('#mysteryHistory');
     const authModal = document.querySelector('#authModal');
     const loginForm = document.querySelector('#loginForm');
     const registerForm = document.querySelector('#registerForm');
@@ -1385,7 +1639,7 @@
     let balance = START_BALANCE;
     let rotation = 0;
     let currentChance = 25;
-    let desiredPayout = 380;
+    let desiredPayout = 400;
     let selectionMode = 'chance';
     let spinning = false;
     let soundEnabled = true;
@@ -1415,6 +1669,13 @@
     let minesOpened = new Set();
     let minesMultiplier = 1;
     let minesHistory = [];
+    let casesOpening = false;
+    let selectedCase = 'starter';
+    let caseHistory = [];
+    let caseTickTimer;
+    let mysteryRunning = false;
+    let mysteryHistory = [];
+    let mysteryCycleTimer;
     let currentSession = null;
     let currentProfile = null;
     let authReady = false;
@@ -1425,6 +1686,60 @@
 
     const SLOT_SYMBOLS = ['🍒', '⭐', '🚀', '💎', '7️⃣'];
     const SLOT_TRIPLE_PAYOUTS = { '🍒': 3, '⭐': 4, '🚀': 5, '💎': 7, '7️⃣': 10 };
+    const CASES = {
+      starter: {
+        title: 'Стартовый кейс', icon: '📦', cost: 100,
+        drops: [
+          { amount: 20, chance: 40, tier: 'common', icon: '🪙' },
+          { amount: 50, chance: 30, tier: 'uncommon', icon: '💵' },
+          { amount: 100, chance: 18, tier: 'rare', icon: '💰' },
+          { amount: 250, chance: 8, tier: 'epic', icon: '💎' },
+          { amount: 500, chance: 3, tier: 'legendary', icon: '👑' },
+          { amount: 1000, chance: 1, tier: 'mythic', icon: '🔥' }
+        ]
+      },
+      neon: {
+        title: 'Неоновый кейс', icon: '💠', cost: 1000,
+        drops: [
+          { amount: 200, chance: 35, tier: 'common', icon: '🪙' },
+          { amount: 500, chance: 30, tier: 'uncommon', icon: '💵' },
+          { amount: 1000, chance: 20, tier: 'rare', icon: '💰' },
+          { amount: 2500, chance: 10, tier: 'epic', icon: '💎' },
+          { amount: 5000, chance: 4, tier: 'legendary', icon: '👑' },
+          { amount: 10000, chance: 1, tier: 'mythic', icon: '🔥' }
+        ]
+      },
+      elite: {
+        title: 'Элитный кейс', icon: '👑', cost: 10000,
+        drops: [
+          { amount: 2000, chance: 32, tier: 'common', icon: '🪙' },
+          { amount: 5000, chance: 30, tier: 'uncommon', icon: '💵' },
+          { amount: 10000, chance: 23, tier: 'rare', icon: '💰' },
+          { amount: 25000, chance: 10, tier: 'epic', icon: '💎' },
+          { amount: 50000, chance: 4, tier: 'legendary', icon: '👑' },
+          { amount: 100000, chance: 1, tier: 'mythic', icon: '🔥' }
+        ]
+      },
+      legend: {
+        title: 'Кейс легенды', icon: '🔥', cost: 100000,
+        drops: [
+          { amount: 25000, chance: 35, tier: 'common', icon: '🪙' },
+          { amount: 50000, chance: 30, tier: 'uncommon', icon: '💵' },
+          { amount: 100000, chance: 20, tier: 'rare', icon: '💰' },
+          { amount: 250000, chance: 10, tier: 'epic', icon: '💎' },
+          { amount: 500000, chance: 4, tier: 'legendary', icon: '👑' },
+          { amount: 1000000, chance: 1, tier: 'mythic', icon: '🔥' }
+        ]
+      }
+    };
+    const MYSTERY_OUTCOMES = [
+      { multiplier: .1, chance: 22 }, { multiplier: .25, chance: 20 },
+      { multiplier: .5, chance: 18 }, { multiplier: .75, chance: 15 },
+      { multiplier: 1, chance: 12 }, { multiplier: 1.5, chance: 6 },
+      { multiplier: 2, chance: 3.5 }, { multiplier: 5, chance: 2 },
+      { multiplier: 10, chance: 1 }, { multiplier: 25, chance: .4 },
+      { multiplier: 50, chance: .1 }
+    ];
 
     const usernamePattern = /^[A-Za-z0-9_-]{3,24}$/;
     const passwordPattern = /^[\x21-\x7E]{8,72}$/;
@@ -1462,6 +1777,8 @@
       document.querySelector('#statRocket').textContent = currentProfile.rocket_plays;
       document.querySelector('#statSlots').textContent = currentProfile.slots_plays;
       document.querySelector('#statMines').textContent = currentProfile.mines_plays;
+      document.querySelector('#statCases').textContent = currentProfile.cases_plays ?? 0;
+      document.querySelector('#statMystery').textContent = currentProfile.mystery_plays ?? 0;
     }
 
     function applyProfile(profile) {
@@ -1606,10 +1923,12 @@
       rocketMaxBet.textContent = money(balance);
       slotsMaxBet.textContent = money(balance);
       minesMaxBet.textContent = money(balance);
+      mysteryMaxBet.textContent = money(balance);
       betInput.max = balance;
       rocketBetInput.max = balance;
       slotsBetInput.max = balance;
       minesBetInput.max = balance;
+      mysteryBetInput.max = balance;
       if (balance <= 0) {
         document.querySelectorAll('.quick-bets .chip').forEach(button => button.disabled = true);
         if (!spinning) {
@@ -1627,6 +1946,14 @@
         if (!minesRunning) {
           minesAction.disabled = true;
           minesAction.textContent = 'МОНЕТЫ ЗАКОНЧИЛИСЬ';
+        }
+        if (!casesOpening) {
+          caseAction.disabled = true;
+          caseAction.textContent = 'МОНЕТЫ ЗАКОНЧИЛИСЬ';
+        }
+        if (!mysteryRunning) {
+          mysteryAction.disabled = true;
+          mysteryAction.textContent = 'МОНЕТЫ ЗАКОНЧИЛИСЬ';
         }
         return;
       }
@@ -1660,6 +1987,14 @@
         minesAction.disabled = false;
         minesAction.textContent = 'НАЧАТЬ ИГРУ';
       }
+      if (!casesOpening) updateCaseView();
+      if (!mysteryRunning) {
+        normalizeBet(mysteryBetInput);
+        document.querySelectorAll('.mystery-quick-bets .chip').forEach(button => button.disabled = false);
+        mysteryAction.disabled = false;
+        mysteryAction.textContent = 'ЗАПУСТИТЬ АПГРЕЙД';
+        updateMysteryPreview();
+      }
     }
 
     function randomUnit() {
@@ -1678,8 +2013,8 @@
     }
 
     function selectGame(game) {
-      if (spinning || rocketRunning || slotsSpinning || minesRunning) return;
-      const views = { wheel: wheelGame, rocket: rocketGame, slots: slotsGame, mines: minesGame };
+      if (spinning || rocketRunning || slotsSpinning || minesRunning || casesOpening || mysteryRunning) return;
+      const views = { wheel: wheelGame, rocket: rocketGame, slots: slotsGame, mines: minesGame, cases: casesGame, mystery: mysteryGame };
       Object.entries(views).forEach(([name, view]) => view.hidden = name !== game);
       gameTabs.forEach(tab => tab.setAttribute('aria-selected', String(tab.dataset.game === game)));
       if (game === 'wheel') enforceWheelCircle();
@@ -2158,6 +2493,222 @@
       minesError.textContent = '';
     }
 
+    function caseDropMarkup(drop) {
+      return `<div class="case-roll-item tier-${drop.tier}"><div><span>${drop.icon}</span><strong>${money(drop.amount)}</strong></div></div>`;
+    }
+
+    function randomVisualCaseDrop(config) {
+      let roll = randomUnit() * 100;
+      for (const drop of config.drops) {
+        roll -= drop.chance;
+        if (roll < 0) return drop;
+      }
+      return config.drops[config.drops.length - 1];
+    }
+
+    function renderCaseDrops() {
+      const config = CASES[selectedCase];
+      caseDrops.innerHTML = config.drops.map(drop => `
+        <div class="case-drop tier-${drop.tier}"><span>${drop.icon} ${money(drop.amount)} коинов</span><strong>${formatChance(drop.chance)}%</strong></div>
+      `).join('');
+    }
+
+    function renderCaseHistory() {
+      if (!caseHistory.length) {
+        caseHistoryNode.innerHTML = '<div class="empty">Кейсы ещё не открывались.</div>';
+        return;
+      }
+      caseHistoryNode.innerHTML = caseHistory.map(item => `
+        <div class="simple-history-item ${item.prize >= item.cost ? 'win' : 'loss'}">${item.icon} ${money(item.prize)} · ${item.title}</div>
+      `).join('');
+    }
+
+    function updateCaseView(resetReel = false) {
+      const config = CASES[selectedCase];
+      caseIcon.textContent = config.icon;
+      caseTitle.textContent = config.title;
+      caseStagePrice.textContent = money(config.cost);
+      caseSelector.querySelectorAll('.case-option').forEach(button => {
+        button.classList.toggle('active', button.dataset.case === selectedCase);
+        button.disabled = casesOpening;
+      });
+      renderCaseDrops();
+      if (!casesOpening) {
+        if (resetReel) {
+          caseReel.style.transition = 'none';
+          caseReel.style.transform = 'translateX(0)';
+          caseReel.innerHTML = config.drops.map(caseDropMarkup).join('');
+          caseResult.className = 'case-result';
+          caseResult.textContent = 'Выбери кейс и открой его';
+        }
+        caseAction.textContent = `ОТКРЫТЬ ЗА ${money(config.cost)}`;
+        caseAction.disabled = config.cost > balance;
+        caseError.textContent = config.cost > balance ? `Не хватает ${money(config.cost - balance)} коинов` : '';
+      }
+    }
+
+    function buildCaseReel(config, winningDrop) {
+      const winningIndex = 34;
+      const items = Array.from({ length: 42 }, (_, index) => index === winningIndex ? winningDrop : randomVisualCaseDrop(config));
+      caseReel.innerHTML = items.map(caseDropMarkup).join('');
+      return winningIndex;
+    }
+
+    function animateCaseReel(winningIndex) {
+      caseReel.style.transition = 'none';
+      caseReel.style.transform = 'translateX(0)';
+      void caseReel.offsetWidth;
+      const item = caseReel.children[winningIndex];
+      const itemWidth = item.getBoundingClientRect().width;
+      const jitter = (randomUnit() - .5) * itemWidth * .48;
+      const target = item.offsetLeft + itemWidth / 2 - caseReelWindow.clientWidth / 2 + jitter;
+      requestAnimationFrame(() => {
+        caseReel.style.transition = 'transform 4.8s cubic-bezier(.12,.68,.06,1)';
+        caseReel.style.transform = `translateX(${-target}px)`;
+      });
+    }
+
+    async function openSelectedCase() {
+      if (casesOpening || !requireAuth()) return;
+      const config = CASES[selectedCase];
+      if (config.cost > balance) {
+        caseError.textContent = `Для этого кейса нужно ${money(config.cost)} коинов`;
+        return;
+      }
+      casesOpening = true;
+      caseError.textContent = '';
+      caseResult.className = 'case-result';
+      caseResult.textContent = 'Кейс открывается…';
+      caseAction.disabled = true;
+      caseAction.textContent = 'ОТКРЫВАЕМ…';
+      caseSelector.querySelectorAll('.case-option').forEach(button => button.disabled = true);
+      setGameTabsDisabled(true);
+
+      let result;
+      try {
+        result = await callRpc('open_case', { p_case_key: selectedCase });
+      } catch (error) {
+        casesOpening = false;
+        setGameTabsDisabled(false);
+        caseError.textContent = error.message;
+        await refreshProfile().catch(() => {});
+        updateCaseView(true);
+        return;
+      }
+
+      balance = Number(result.balance_after_cost);
+      updateBalance();
+      const winningDrop = config.drops.find(drop => drop.amount === Number(result.prize)) || config.drops[0];
+      const winningIndex = buildCaseReel(config, winningDrop);
+      animateCaseReel(winningIndex);
+      playMysteryRollSound(4.8);
+      clearInterval(caseTickTimer);
+      caseTickTimer = setInterval(playSlotTick, 115);
+
+      window.setTimeout(() => {
+        clearInterval(caseTickTimer);
+        balance = Number(result.balance);
+        caseHistory.unshift({ title: config.title, icon: winningDrop.icon, prize: Number(result.prize), cost: config.cost });
+        caseHistory = caseHistory.slice(0, 12);
+        renderCaseHistory();
+        casesOpening = false;
+        setGameTabsDisabled(false);
+        caseResult.className = `case-result ${Number(result.prize) >= config.cost ? 'win' : ''}`;
+        caseResult.textContent = `Выпало ${money(result.prize)} коинов`;
+        playSafeCellSound();
+        updateBalance();
+        updateCaseView();
+        showToast(Number(result.prize) >= config.cost, `Кейс: выпало ${money(result.prize)} коинов`);
+      }, 4950);
+    }
+
+    const formatMultiplier = value => Number(value).toLocaleString('ru-RU', { maximumFractionDigits: 2 });
+
+    function renderMysteryTable() {
+      mysteryTable.innerHTML = MYSTERY_OUTCOMES.map(item => `
+        <div class="mystery-odd"><strong>×${formatMultiplier(item.multiplier)}</strong><span>${formatChance(item.chance)}%</span></div>
+      `).join('');
+    }
+
+    function renderMysteryHistory() {
+      if (!mysteryHistory.length) {
+        mysteryHistoryNode.innerHTML = '<div class="empty">Апгрейдов ещё не было.</div>';
+        return;
+      }
+      mysteryHistoryNode.innerHTML = mysteryHistory.map(item => `
+        <div class="simple-history-item ${item.multiplier >= 1 ? 'win' : 'loss'}">×${formatMultiplier(item.multiplier)} · ${money(item.bet)} → ${money(item.payout)}</div>
+      `).join('');
+    }
+
+    function updateMysteryPreview() {
+      const bet = Number(mysteryBetInput.value);
+      if (mysteryBetInput.value !== '' && bet < 1) mysteryError.textContent = 'Минимальная сумма — 1';
+      else if (bet > balance) mysteryError.textContent = 'Сумма больше текущего баланса';
+      else mysteryError.textContent = '';
+    }
+
+    async function startMysteryUpgrade() {
+      if (mysteryRunning || !requireAuth()) return;
+      const bet = Number(mysteryBetInput.value);
+      if (!Number.isFinite(bet) || bet < 1 || bet > balance) {
+        mysteryError.textContent = balance <= 0 ? 'Пополни баланс для апгрейда' : 'Введи сумму от 1 до размера баланса';
+        mysteryBetInput.focus();
+        return;
+      }
+      mysteryRunning = true;
+      mysteryBetInput.disabled = true;
+      document.querySelectorAll('.mystery-quick-bets .chip').forEach(button => button.disabled = true);
+      mysteryAction.disabled = true;
+      mysteryAction.textContent = 'АПГРЕЙД ИДЁТ…';
+      mysteryOrb.classList.add('rolling');
+      mysteryCaption.textContent = 'Множитель выбирается…';
+      setGameTabsDisabled(true);
+      playMysteryRollSound(2.8);
+      clearInterval(mysteryCycleTimer);
+      mysteryCycleTimer = setInterval(() => {
+        const randomOutcome = MYSTERY_OUTCOMES[Math.floor(randomUnit() * MYSTERY_OUTCOMES.length)];
+        mysteryValue.textContent = `×${formatMultiplier(randomOutcome.multiplier)}`;
+        playSlotTick();
+      }, 95);
+
+      let result;
+      try {
+        result = await callRpc('play_mystery_upgrade', { p_bet: bet });
+        balance = Number(result.balance_after_bet);
+        updateBalance();
+      } catch (error) {
+        clearInterval(mysteryCycleTimer);
+        mysteryRunning = false;
+        mysteryBetInput.disabled = false;
+        mysteryOrb.classList.remove('rolling');
+        setGameTabsDisabled(false);
+        mysteryError.textContent = error.message;
+        await refreshProfile().catch(() => {});
+        updateBalance();
+        return;
+      }
+
+      window.setTimeout(() => {
+        clearInterval(mysteryCycleTimer);
+        const multiplier = Number(result.multiplier);
+        const payout = Number(result.payout);
+        balance = Number(result.balance);
+        mysteryRunning = false;
+        mysteryBetInput.disabled = false;
+        mysteryOrb.classList.remove('rolling');
+        setGameTabsDisabled(false);
+        mysteryValue.textContent = `×${formatMultiplier(multiplier)}`;
+        mysteryCaption.textContent = `${money(bet)} превратились в ${money(payout)} коинов`;
+        mysteryHistory.unshift({ multiplier, bet, payout });
+        mysteryHistory = mysteryHistory.slice(0, 12);
+        renderMysteryHistory();
+        if (multiplier >= 1) playSafeCellSound(); else playExplosionSound(.28);
+        updateBalance();
+        updateMysteryPreview();
+        showToast(multiplier >= 1, `Mystery: ×${formatMultiplier(multiplier)} · получено ${money(payout)}`);
+      }, 2900);
+    }
+
     function stopSpinSound() {
       clearTimeout(soundTickTimer);
       if (activeSoundGain && audioContext) {
@@ -2315,6 +2866,34 @@
       engine.start(now);
       noise.stop(now + duration);
       engine.stop(now + duration);
+    }
+
+    function playMysteryRollSound(seconds = 2.8) {
+      const context = getAudioContext();
+      if (!context) return;
+      const now = context.currentTime;
+      const oscillator = context.createOscillator();
+      const shimmer = context.createOscillator();
+      const gain = trackEffectGain(context.createGain(), seconds * 1000);
+      const shimmerGain = trackEffectGain(context.createGain(), seconds * 1000);
+      oscillator.type = 'triangle';
+      oscillator.frequency.setValueAtTime(130, now);
+      oscillator.frequency.exponentialRampToValueAtTime(880, now + seconds);
+      shimmer.type = 'sine';
+      shimmer.frequency.setValueAtTime(520, now);
+      shimmer.frequency.exponentialRampToValueAtTime(1760, now + seconds);
+      gain.gain.setValueAtTime(.0001, now);
+      gain.gain.linearRampToValueAtTime(.04, now + .12);
+      gain.gain.exponentialRampToValueAtTime(.0001, now + seconds);
+      shimmerGain.gain.setValueAtTime(.0001, now);
+      shimmerGain.gain.linearRampToValueAtTime(.012, now + .18);
+      shimmerGain.gain.exponentialRampToValueAtTime(.0001, now + seconds);
+      oscillator.connect(gain).connect(context.destination);
+      shimmer.connect(shimmerGain).connect(context.destination);
+      oscillator.start(now);
+      shimmer.start(now);
+      oscillator.stop(now + seconds);
+      shimmer.stop(now + seconds);
     }
 
     function playSpinSound(duration) {
@@ -2696,6 +3275,25 @@
       else startMines();
     });
 
+    caseSelector.addEventListener('click', event => {
+      const button = event.target.closest('.case-option');
+      if (!button || casesOpening) return;
+      selectedCase = button.dataset.case;
+      updateCaseView(true);
+    });
+    caseAction.addEventListener('click', openSelectedCase);
+
+    mysteryBetInput.addEventListener('input', updateMysteryPreview);
+    document.querySelectorAll('.mystery-quick-bets .chip').forEach(button => {
+      button.addEventListener('click', () => {
+        if (button.dataset.mysteryBet) mysteryBetInput.value = Math.min(Number(button.dataset.mysteryBet), balance);
+        if (button.dataset.mysteryAction === 'half') mysteryBetInput.value = Math.max(1, Math.floor(balance / 2));
+        if (button.dataset.mysteryAction === 'all') mysteryBetInput.value = balance;
+        updateMysteryPreview();
+      });
+    });
+    mysteryAction.addEventListener('click', startMysteryUpgrade);
+
     async function openTopup() {
       if (!requireAuth()) return;
       await refreshProfile();
@@ -2806,11 +3404,13 @@
     }
 
     document.querySelector('#reset').addEventListener('click', () => {
-      if (spinning || rocketRunning || slotsSpinning || minesRunning) return;
+      if (spinning || rocketRunning || slotsSpinning || minesRunning || casesOpening || mysteryRunning) return;
       history = [];
       rocketHistory = [];
       slotsHistory = [];
       minesHistory = [];
+      caseHistory = [];
+      mysteryHistory = [];
       betInput.value = 100;
       rocketBetInput.value = 100;
       slotsBetInput.value = 100;
@@ -2821,7 +3421,7 @@
       chanceInput.value = 25;
       chanceNumberInput.value = 25;
       currentChance = 25;
-      desiredPayout = 380;
+      desiredPayout = 400;
       selectionMode = 'chance';
       spinButton.disabled = false;
       spinButton.textContent = 'КРУТИТЬ КОЛЕСО';
@@ -2829,12 +3429,16 @@
       renderRocketHistory();
       renderSlotsHistory();
       renderMinesHistory();
+      renderCaseHistory();
+      renderMysteryHistory();
       buildMinesGrid();
       updateBalance();
       updatePreview();
       updateRocketPreview();
       updateSlotsPreview();
       updateMinesPreview();
+      updateCaseView(true);
+      updateMysteryPreview();
       showToast(true, 'Локальная история очищена');
     });
 
@@ -2845,6 +3449,9 @@
     updateRocketPreview();
     updateSlotsPreview();
     updateMinesPreview();
+    renderMysteryTable();
+    updateCaseView(true);
+    updateMysteryPreview();
     initializeAuth();
   </script>
 </body>
