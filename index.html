@@ -68,6 +68,18 @@
       font-weight: 850;
       letter-spacing: -.03em;
     }
+    .brand-area { display: flex; align-items: center; gap: 10px; }
+    .dev-code-btn {
+      width: 38px;
+      height: 38px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      color: var(--muted);
+      background: rgba(255,255,255,.035);
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .dev-code-btn.active { color: #151a0a; border-color: var(--accent); background: var(--accent); }
 
     .logo {
       display: grid;
@@ -96,6 +108,22 @@
       transition: .2s ease;
     }
     .topup-btn:hover { border-color: rgba(190,255,82,.55); background: rgba(190,255,82,.12); transform: translateY(-1px); }
+    .account-btn {
+      max-width: 150px;
+      min-height: 40px;
+      padding: 0 13px;
+      overflow: hidden;
+      border: 1px solid rgba(97,244,200,.24);
+      border-radius: 13px;
+      color: var(--accent-2);
+      background: rgba(97,244,200,.06);
+      font-size: 12px;
+      font-weight: 850;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+    .transfer-btn { color: #a89bff; border-color: rgba(168,155,255,.24); background: rgba(168,155,255,.06); }
     .eyebrow {
       margin: 0 0 4px;
       color: var(--muted);
@@ -820,6 +848,29 @@
     .topup-error { min-height: 18px; margin: 8px 0; color: #ff8891; font-size: 12px; }
     .topup-confirm { width: 100%; }
 
+    .auth-backdrop { z-index: 50; background: rgba(3,5,9,.92); }
+    .auth-card { width: min(460px, 100%); }
+    .auth-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin: 20px 0; padding: 5px; border: 1px solid var(--line); border-radius: 14px; }
+    .auth-tab { padding: 10px; border: 0; border-radius: 10px; color: var(--muted); background: transparent; font-weight: 850; cursor: pointer; }
+    .auth-tab.active { color: #151a0a; background: var(--accent); }
+    .auth-form { display: grid; gap: 14px; }
+    .auth-form[hidden] { display: none; }
+    .auth-hint { color: #6f7789; font-size: 11px; line-height: 1.45; }
+    .auth-error { min-height: 19px; color: #ff8891; font-size: 12px; }
+
+    .profile-modal { width: min(720px, 100%); max-height: min(850px, calc(100vh - 40px)); overflow-y: auto; }
+    .profile-hero { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 20px; padding-right: 42px; }
+    .profile-login { margin: 0; color: var(--accent-2); font-size: 28px; letter-spacing: -.04em; }
+    .profile-stats { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 9px; }
+    .profile-stat { padding: 13px; border: 1px solid var(--line); border-radius: 13px; background: rgba(255,255,255,.025); }
+    .profile-stat span { display: block; color: var(--muted); font-size: 10px; line-height: 1.3; }
+    .profile-stat strong { display: block; margin-top: 7px; font-size: 17px; }
+    .profile-section { margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--line); }
+    .profile-section h3 { margin: 0 0 13px; font-size: 15px; }
+    .inline-form { display: grid; grid-template-columns: 1fr auto; gap: 9px; }
+    .secondary-btn { min-height: 48px; padding: 0 16px; border: 1px solid var(--line); border-radius: 13px; color: var(--text); background: rgba(255,255,255,.045); font-weight: 800; cursor: pointer; }
+    .danger-btn { color: #ff8891; border-color: rgba(255,89,100,.25); }
+
     .footer-note { margin: 16px 0 0; color: #596070; font-size: 11px; text-align: center; }
 
     @media (max-width: 880px) {
@@ -837,6 +888,10 @@
       .topup-btn { width: 40px; padding: 0; font-size: 0; }
       .topup-btn::before { content: "+"; font-size: 22px; }
       .balance { font-size: 21px; }
+      .transfer-btn { display: none; }
+      .account-btn { max-width: 88px; padding-inline: 9px; }
+      .profile-stats { grid-template-columns: repeat(2, minmax(0,1fr)); }
+      .inline-form { grid-template-columns: 1fr; }
       .card { border-radius: 22px; }
       .wheel-card { min-height: 445px; padding: 50px 14px 24px; }
       .pointer { top: 28px; width: 38px; height: 50px; }
@@ -877,9 +932,14 @@
 <body>
   <main class="app">
     <header class="topbar">
-      <div class="brand"><span class="logo">%</span><span>ПРОЦЕНТ</span></div>
+      <div class="brand-area">
+        <div class="brand"><span class="logo">%</span><span>ПРОЦЕНТ</span></div>
+        <button class="dev-code-btn" id="devCodeOpen" type="button" aria-label="Ввести код разработчика">&lt;/&gt;</button>
+      </div>
       <div class="account-area">
+        <button class="topup-btn transfer-btn" id="transferOpen" type="button">⇄ Перевести</button>
         <button class="topup-btn" id="topupOpen" type="button">＋ Пополнить</button>
+        <button class="account-btn" id="accountOpen" type="button">Войти</button>
         <div class="balance-wrap">
           <p class="eyebrow">Твой баланс</p>
           <div class="balance"><span class="coin">₽</span><span id="balance">1 000</span></div>
@@ -972,7 +1032,7 @@
       <section class="card history-card">
         <div class="history-head">
           <h2>Последние вращения</h2>
-          <button class="text-btn" id="reset">Начать заново</button>
+          <button class="text-btn" id="reset">Очистить локальную историю</button>
         </div>
         <div class="history-list" id="history">
           <div class="empty">Здесь появятся результаты первых вращений.</div>
@@ -1152,12 +1212,85 @@
     <p class="footer-note">Демо-игра на виртуальные монеты. Никаких реальных денег.</p>
   </main>
 
+  <div class="modal-backdrop auth-backdrop" id="authModal">
+    <section class="topup-modal auth-card" role="dialog" aria-modal="true" aria-labelledby="authTitle">
+      <p class="eyebrow">Аккаунт игрока</p>
+      <h2 id="authTitle">Вход в игру</h2>
+      <p class="subtitle">Без аккаунта запускать игры нельзя. Начальный баланс нового аккаунта — 0.</p>
+      <div class="auth-tabs">
+        <button class="auth-tab active" id="loginTab" type="button">Войти</button>
+        <button class="auth-tab" id="registerTab" type="button">Регистрация</button>
+      </div>
+      <form class="auth-form" id="loginForm">
+        <label for="loginUsername">Логин</label>
+        <div class="money-input"><input id="loginUsername" type="text" autocomplete="username" placeholder="player_01" maxlength="24"></div>
+        <label for="loginPassword">Пароль</label>
+        <div class="money-input"><input id="loginPassword" type="password" autocomplete="current-password" placeholder="••••••••" maxlength="72"></div>
+        <p class="auth-error" id="loginError" role="alert"></p>
+        <button class="spin-btn" type="submit">ВОЙТИ</button>
+      </form>
+      <form class="auth-form" id="registerForm" hidden>
+        <label for="registerUsername">Новый логин</label>
+        <div class="money-input"><input id="registerUsername" type="text" autocomplete="username" placeholder="player_01" maxlength="24"></div>
+        <p class="auth-hint">3–24 символа: английские буквы, цифры, дефис и подчёркивание.</p>
+        <label for="registerPassword">Новый пароль</label>
+        <div class="money-input"><input id="registerPassword" type="password" autocomplete="new-password" placeholder="Минимум 8 символов" maxlength="72"></div>
+        <p class="auth-hint">Только обычные символы английской клавиатуры, без пробелов и эмодзи.</p>
+        <p class="auth-error" id="registerError" role="alert"></p>
+        <button class="spin-btn" type="submit">СОЗДАТЬ АККАУНТ</button>
+      </form>
+    </section>
+  </div>
+
+  <div class="modal-backdrop" id="profileModal" hidden>
+    <section class="topup-modal profile-modal" role="dialog" aria-modal="true" aria-labelledby="profileTitle">
+      <button class="modal-close" id="profileClose" type="button" aria-label="Закрыть">×</button>
+      <div class="profile-hero"><div><p class="eyebrow">Профиль игрока</p><h2 class="profile-login" id="profileTitle">—</h2></div><button class="secondary-btn danger-btn" id="logoutButton" type="button">Выйти</button></div>
+      <div class="profile-stats">
+        <div class="profile-stat"><span>Баланс</span><strong id="statBalance">0</strong></div>
+        <div class="profile-stat"><span>Всего пополнено</span><strong id="statTopups">0</strong></div>
+        <div class="profile-stat"><span>Поставлено</span><strong id="statWagered">0</strong></div>
+        <div class="profile-stat"><span>Получено выигрышей</span><strong id="statWon">0</strong></div>
+        <div class="profile-stat"><span>Колесо</span><strong id="statWheel">0</strong></div>
+        <div class="profile-stat"><span>Ракета</span><strong id="statRocket">0</strong></div>
+        <div class="profile-stat"><span>Слоты</span><strong id="statSlots">0</strong></div>
+        <div class="profile-stat"><span>Сапёр</span><strong id="statMines">0</strong></div>
+      </div>
+      <div class="profile-section">
+        <h3>Сменить пароль</h3>
+        <div class="inline-form"><div class="money-input"><input id="newPassword" type="password" autocomplete="new-password" placeholder="Новый пароль"></div><button class="secondary-btn" id="changePassword" type="button">Изменить</button></div>
+        <p class="auth-error" id="passwordError"></p>
+      </div>
+    </section>
+  </div>
+
+  <div class="modal-backdrop" id="transferModal" hidden>
+    <section class="topup-modal" role="dialog" aria-modal="true" aria-labelledby="transferTitle">
+      <button class="modal-close" id="transferClose" type="button" aria-label="Закрыть">×</button>
+      <p class="eyebrow">Перевод коинов</p><h2 id="transferTitle">Другому игроку</h2>
+      <label for="transferUsername">Логин получателя</label><div class="money-input"><input id="transferUsername" type="text" placeholder="player_02" maxlength="24"></div>
+      <label for="transferAmount">Сумма</label><div class="money-input"><span class="coin">₽</span><input id="transferAmount" type="number" min="0.01" step="0.01" placeholder="1000"></div>
+      <p class="auth-error" id="transferError"></p>
+      <button class="spin-btn topup-confirm" id="transferConfirm" type="button">ПЕРЕВЕСТИ</button>
+    </section>
+  </div>
+
+  <div class="modal-backdrop" id="devCodeModal" hidden>
+    <section class="topup-modal" role="dialog" aria-modal="true" aria-labelledby="devCodeTitle">
+      <button class="modal-close" id="devCodeClose" type="button" aria-label="Закрыть">×</button>
+      <p class="eyebrow">Режим разработчика</p><h2 id="devCodeTitle">Ввести код</h2>
+      <div class="money-input"><input id="devCodeInput" type="password" placeholder="Код разработчика"></div>
+      <p class="auth-error" id="devCodeError"></p>
+      <button class="spin-btn topup-confirm" id="devCodeConfirm" type="button">АКТИВИРОВАТЬ</button>
+    </section>
+  </div>
+
   <div class="modal-backdrop" id="topupModal" hidden>
     <section class="topup-modal" role="dialog" aria-modal="true" aria-labelledby="topupTitle">
       <button class="modal-close" id="topupClose" type="button" aria-label="Закрыть">×</button>
       <p class="eyebrow">Панель создателя</p>
       <h2 id="topupTitle">Пополнить баланс</h2>
-      <p class="subtitle">Добавь любое количество виртуальных монет.</p>
+      <p class="subtitle" id="topupLimitText">Лимит: 1 000 000 коинов за московские сутки.</p>
       <label for="topupAmount">Сумма пополнения</label>
       <div class="money-input">
         <span class="coin">₽</span>
@@ -1175,13 +1308,15 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-    const START_BALANCE = 1000;
+    const START_BALANCE = 0;
     const MIN_CHANCE = 0.01;
     const MAX_CHANCE = 80;
     const PAYOUT_FACTOR = 0.95;
-    const STORAGE_KEY = 'procent-game-balance-v1';
-    const BALANCE_COOKIE = 'procent_game_balance';
+    const SUPABASE_URL = 'https://kgdxpchsofisfbxprkto.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_1XpT7qxrlRalawg0M852pw_P2YgneEB';
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     const wheel = document.querySelector('#wheel');
     const wheelShell = document.querySelector('.wheel-shell');
     const chanceInput = document.querySelector('#chance');
@@ -1239,32 +1374,16 @@
     const minesError = document.querySelector('#minesError');
     const minesAction = document.querySelector('#minesAction');
     const minesHistoryNode = document.querySelector('#minesHistory');
+    const authModal = document.querySelector('#authModal');
+    const loginForm = document.querySelector('#loginForm');
+    const registerForm = document.querySelector('#registerForm');
+    const accountOpen = document.querySelector('#accountOpen');
+    const profileModal = document.querySelector('#profileModal');
+    const transferModal = document.querySelector('#transferModal');
+    const devCodeModal = document.querySelector('#devCodeModal');
+    const topupLimitText = document.querySelector('#topupLimitText');
 
-    function loadSavedBalance() {
-      try {
-        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
-        if (Number.isFinite(saved?.balance) && saved.balance >= 0) return saved.balance;
-      } catch {}
-
-      try {
-        const cookie = document.cookie.split('; ').find(item => item.startsWith(`${BALANCE_COOKIE}=`));
-        const cookieBalance = cookie ? Number(decodeURIComponent(cookie.split('=').slice(1).join('='))) : NaN;
-        if (Number.isFinite(cookieBalance) && cookieBalance >= 0) return cookieBalance;
-      } catch {}
-
-      return START_BALANCE;
-    }
-
-    function saveBalance() {
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({ balance }));
-      } catch {}
-      try {
-        document.cookie = `${BALANCE_COOKIE}=${encodeURIComponent(balance)}; max-age=31536000; path=/; SameSite=Lax`;
-      } catch {}
-    }
-
-    let balance = loadSavedBalance();
+    let balance = START_BALANCE;
     let rotation = 0;
     let currentChance = 25;
     let desiredPayout = 380;
@@ -1296,9 +1415,95 @@
     let minesOpened = new Set();
     let minesMultiplier = 1;
     let minesHistory = [];
+    let currentSession = null;
+    let currentProfile = null;
+    let authReady = false;
+    let rocketRoundId = null;
+    let rocketPollTimer;
+    let rocketPollBusy = false;
+    let minesRoundId = null;
 
     const SLOT_SYMBOLS = ['🍒', '⭐', '🚀', '💎', '7️⃣'];
     const SLOT_TRIPLE_PAYOUTS = { '🍒': 3, '⭐': 4, '🚀': 5, '💎': 7, '7️⃣': 10 };
+
+    const usernamePattern = /^[A-Za-z0-9_-]{3,24}$/;
+    const passwordPattern = /^[\x21-\x7E]{8,72}$/;
+    const authEmail = username => `${username.toLowerCase()}@procent.game`;
+
+    async function callRpc(name, params = {}) {
+      const { data, error } = await supabaseClient.rpc(name, params);
+      if (error) throw new Error(error.message || 'Ошибка сервера');
+      return data;
+    }
+
+    function requireAuth() {
+      if (currentSession && currentProfile) return true;
+      authModal.hidden = false;
+      return false;
+    }
+
+    function setAuthMode(mode) {
+      const loginMode = mode === 'login';
+      loginForm.hidden = !loginMode;
+      registerForm.hidden = loginMode;
+      document.querySelector('#loginTab').classList.toggle('active', loginMode);
+      document.querySelector('#registerTab').classList.toggle('active', !loginMode);
+      document.querySelector('#authTitle').textContent = loginMode ? 'Вход в игру' : 'Новый аккаунт';
+    }
+
+    function fillProfileView() {
+      if (!currentProfile) return;
+      document.querySelector('#profileTitle').textContent = currentProfile.username;
+      document.querySelector('#statBalance').textContent = money(currentProfile.balance);
+      document.querySelector('#statTopups').textContent = money(currentProfile.total_topped_up);
+      document.querySelector('#statWagered').textContent = money(currentProfile.total_wagered);
+      document.querySelector('#statWon').textContent = money(currentProfile.total_won);
+      document.querySelector('#statWheel').textContent = currentProfile.wheel_plays;
+      document.querySelector('#statRocket').textContent = currentProfile.rocket_plays;
+      document.querySelector('#statSlots').textContent = currentProfile.slots_plays;
+      document.querySelector('#statMines').textContent = currentProfile.mines_plays;
+    }
+
+    function applyProfile(profile) {
+      currentProfile = profile;
+      balance = Number(profile.balance);
+      accountOpen.textContent = profile.username;
+      document.querySelector('#devCodeOpen').classList.toggle('active', Boolean(profile.dev_mode));
+      topupLimitText.textContent = profile.dev_mode
+        ? 'DEV-режим: суточный лимит отключён.'
+        : `Сегодня можно добавить ещё ${money(profile.topup_remaining)} коинов (Москва).`;
+      fillProfileView();
+      updateBalance();
+      updatePreview();
+      updateRocketPreview();
+      updateSlotsPreview();
+      updateMinesPreview();
+    }
+
+    async function refreshProfile() {
+      if (!currentSession) return;
+      const profile = await callRpc('get_my_profile');
+      applyProfile(profile);
+    }
+
+    async function initializeAuth() {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      currentSession = session;
+      if (session) {
+        try {
+          await refreshProfile();
+          authModal.hidden = true;
+        } catch (error) {
+          authModal.hidden = false;
+          document.querySelector('#loginError').textContent = error.message;
+        }
+      } else {
+        balance = 0;
+        authModal.hidden = false;
+        updateBalance();
+      }
+      authReady = true;
+    }
 
     const money = value => {
       const rounded = Math.abs(value) <= Number.MAX_SAFE_INTEGER / 100
@@ -1396,7 +1601,6 @@
     }
 
     function updateBalance() {
-      saveBalance();
       balanceNode.textContent = money(balance);
       maxBetNode.textContent = money(balance);
       rocketMaxBet.textContent = money(balance);
@@ -1534,6 +1738,9 @@
     function finishRocketRound() {
       rocketRunning = false;
       cancelAnimationFrame(rocketFrame);
+      clearInterval(rocketPollTimer);
+      rocketPollBusy = false;
+      rocketRoundId = null;
       lockRocketControls(false);
       rocketAction.classList.remove('running');
       updateBalance();
@@ -1559,15 +1766,28 @@
       if (!rocketRunning) return;
       const elapsed = now - rocketStartTime;
       rocketMultiplier = Math.exp(elapsed / 10000);
-      if (rocketMultiplier >= rocketCrashAt) {
-        crashRocket();
-        return;
-      }
       drawRocketFlight(rocketMultiplier, elapsed);
       rocketFrame = requestAnimationFrame(updateRocketFlight);
     }
 
-    function startRocket() {
+    async function checkRocketServer() {
+      if (!rocketRunning || !rocketRoundId || rocketPollBusy) return;
+      rocketPollBusy = true;
+      try {
+        const result = await callRpc('rocket_status', { p_round_id: rocketRoundId });
+        if (result.status === 'lost' && rocketRunning) {
+          rocketCrashAt = Number(result.crash_at);
+          crashRocket();
+        }
+      } catch (error) {
+        rocketError.textContent = error.message;
+      } finally {
+        rocketPollBusy = false;
+      }
+    }
+
+    async function startRocket() {
+      if (!requireAuth()) return;
       const bet = validRocketBet();
       if (!bet) {
         rocketError.textContent = balance <= 0 ? 'Пополни баланс для нового запуска' : 'Введи ставку от 1 до размера баланса';
@@ -1577,11 +1797,8 @@
 
       rocketRunning = true;
       rocketBet = bet;
-      rocketCrashAt = randomCrashMultiplier();
       rocketMultiplier = 1;
-      balance = Math.round((balance - bet + Number.EPSILON) * 100) / 100;
       lockRocketControls(true);
-      updateBalance();
 
       rocketStage.classList.remove('crashed');
       rocketSprite.textContent = '🚀';
@@ -1591,16 +1808,45 @@
       rocketAction.disabled = false;
       rocketAction.classList.add('running');
       drawRocketFlight(1);
-      rocketStartTime = performance.now();
+      try {
+        const result = await callRpc('start_rocket', { p_bet: bet });
+        rocketRoundId = result.round_id;
+        balance = Number(result.balance);
+        updateBalance();
+        rocketStartTime = performance.now() - Math.max(0, Date.now() - Date.parse(result.started_at));
+      } catch (error) {
+        rocketRunning = false;
+        lockRocketControls(false);
+        rocketAction.classList.remove('running');
+        rocketError.textContent = error.message;
+        await refreshProfile().catch(() => {});
+        return;
+      }
       rocketFrame = requestAnimationFrame(updateRocketFlight);
+      rocketPollTimer = setInterval(checkRocketServer, 350);
+      checkRocketServer();
     }
 
-    function cashOutRocket() {
+    async function cashOutRocket() {
       if (!rocketRunning) return;
-      const cashedAt = rocketMultiplier;
-      const payout = Math.round((rocketBet * cashedAt + Number.EPSILON) * 100) / 100;
-      const profit = payout - rocketBet;
-      balance = Math.round((balance + payout + Number.EPSILON) * 100) / 100;
+      rocketAction.disabled = true;
+      let result;
+      try {
+        result = await callRpc('cashout_rocket', { p_round_id: rocketRoundId });
+      } catch (error) {
+        rocketAction.disabled = false;
+        rocketError.textContent = error.message;
+        return;
+      }
+      if (result.status === 'lost') {
+        rocketCrashAt = Number(result.crash_at);
+        crashRocket();
+        return;
+      }
+      const cashedAt = Number(result.multiplier);
+      const payout = Number(result.payout);
+      const profit = Number(result.profit);
+      balance = Number(result.balance);
       rocketStatus.textContent = `Забрано ${money(payout)} на ${cashedAt.toFixed(2)}×`;
       rocketMultiplierNode.style.color = 'var(--accent-2)';
       rocketHistory.unshift({ win: true, value: cashedAt });
@@ -1640,8 +1886,9 @@
       `).join('');
     }
 
-    function startSlots() {
+    async function startSlots() {
       if (slotsSpinning) return;
+      if (!requireAuth()) return;
       const bet = validSlotsBet();
       if (!bet) {
         slotsError.textContent = balance <= 0 ? 'Пополни баланс для вращения' : 'Введи ставку от 1 до размера баланса';
@@ -1650,7 +1897,6 @@
       }
 
       slotsSpinning = true;
-      balance = Math.round((balance - bet + Number.EPSILON) * 100) / 100;
       slotsBetInput.disabled = true;
       document.querySelectorAll('.slots-quick-bets .chip').forEach(button => button.disabled = true);
       slotsAction.disabled = true;
@@ -1659,20 +1905,35 @@
       slotMessage.className = 'slot-message';
       slotMessage.textContent = 'Ловим комбинацию…';
       slotReels.forEach(reel => reel.classList.add('spinning'));
-      updateBalance();
-
-      const result = slotSymbols.map(() => SLOT_SYMBOLS[Math.floor(randomUnit() * SLOT_SYMBOLS.length)]);
       slotRollInterval = setInterval(() => {
         slotSymbols.forEach(node => node.textContent = SLOT_SYMBOLS[Math.floor(randomUnit() * SLOT_SYMBOLS.length)]);
       }, 85);
+
+      let serverResult;
+      try {
+        serverResult = await callRpc('play_slots', { p_bet: bet });
+        balance = Number(serverResult.balance_after_bet);
+        updateBalance();
+      } catch (error) {
+        clearInterval(slotRollInterval);
+        slotReels.forEach(reel => reel.classList.remove('spinning'));
+        slotsSpinning = false;
+        slotsBetInput.disabled = false;
+        setGameTabsDisabled(false);
+        updateBalance();
+        slotsError.textContent = error.message;
+        return;
+      }
+
+      const result = serverResult.symbols;
 
       slotTimer = setTimeout(() => {
         clearInterval(slotRollInterval);
         slotSymbols.forEach((node, index) => node.textContent = result[index]);
         slotReels.forEach(reel => reel.classList.remove('spinning'));
-        const multiplier = getSlotMultiplier(result);
-        const payout = Math.round((bet * multiplier + Number.EPSILON) * 100) / 100;
-        if (multiplier > 0) balance = Math.round((balance + payout + Number.EPSILON) * 100) / 100;
+        const multiplier = Number(serverResult.multiplier);
+        const payout = Number(serverResult.payout);
+        balance = Number(serverResult.balance);
 
         slotsHistory.unshift({ symbols: result, multiplier });
         slotsHistory = slotsHistory.slice(0, 10);
@@ -1768,6 +2029,7 @@
 
     function finishMinesRound(win, cashedMultiplier = minesMultiplier) {
       minesRunning = false;
+      minesRoundId = null;
       lockMinesControls(false);
       minesHistory.unshift({ win, mines: minesCount, safe: minesOpened.size, multiplier: cashedMultiplier });
       minesHistory = minesHistory.slice(0, 10);
@@ -1776,7 +2038,8 @@
       updateMinesPreview();
     }
 
-    function loseMines(index) {
+    function loseMines(index, minePositions = []) {
+      minesSet = new Set(minePositions.map(Number));
       const cell = minesGrid.querySelector(`[data-cell="${index}"]`);
       cell.textContent = '💣';
       cell.classList.add('mine');
@@ -1788,10 +2051,23 @@
       showToast(false, `Сапёр: мина после ${minesOpened.size} безопасных клеток`);
     }
 
-    function cashOutMines(auto = false) {
+    async function cashOutMines(auto = false, completedResult = null) {
       if (!minesRunning || minesOpened.size === 0) return;
-      const payout = Math.round((minesBet * minesMultiplier + Number.EPSILON) * 100) / 100;
-      balance = Math.round((balance + payout + Number.EPSILON) * 100) / 100;
+      minesAction.disabled = true;
+      let result = completedResult;
+      if (!result) {
+        try {
+          result = await callRpc('cashout_mines', { p_round_id: minesRoundId });
+        } catch (error) {
+          minesAction.disabled = false;
+          minesError.textContent = error.message;
+          return;
+        }
+      }
+      const payout = Number(result.payout);
+      minesMultiplier = Number(result.multiplier);
+      balance = Number(result.balance);
+      minesSet = new Set((result.mines || []).map(Number));
       revealAllMines(true);
       minesMultiplierNode.style.color = 'var(--accent-2)';
       minesAction.textContent = 'НОВАЯ ИГРА';
@@ -1799,29 +2075,42 @@
       showToast(true, `Сапёр: забрано ${money(payout)}${auto ? ' · поле пройдено' : ''}`);
     }
 
-    function openMineCell(index) {
+    async function openMineCell(index) {
       if (!minesRunning || minesOpened.has(index)) return;
-      if (minesSet.has(index)) {
-        loseMines(index);
+      const cell = minesGrid.querySelector(`[data-cell="${index}"]`);
+      cell.disabled = true;
+      let result;
+      try {
+        result = await callRpc('open_mine_cell', { p_round_id: minesRoundId, p_position: index });
+      } catch (error) {
+        cell.disabled = false;
+        minesError.textContent = error.message;
+        return;
+      }
+      if (result.hit) {
+        balance = Number(result.balance);
+        loseMines(index, result.mines || []);
         return;
       }
 
       minesOpened.add(index);
-      const cell = minesGrid.querySelector(`[data-cell="${index}"]`);
       cell.textContent = '◆';
       cell.classList.add('safe');
-      cell.disabled = true;
-      minesMultiplier = calculateMinesMultiplier(minesOpened.size);
-      const payout = minesBet * minesMultiplier;
+      minesMultiplier = Number(result.multiplier);
+      const payout = Number(result.payout);
       minesMultiplierNode.textContent = `${minesMultiplier.toFixed(2)}×`;
       minesPayoutNode.textContent = money(payout);
       minesAction.disabled = false;
       minesAction.textContent = `ЗАБРАТЬ ${money(payout)}`;
 
-      if (minesOpened.size === 25 - minesCount) cashOutMines(true);
+      if (result.completed) {
+        balance = Number(result.balance);
+        await cashOutMines(true, result);
+      }
     }
 
-    function startMines() {
+    async function startMines() {
+      if (!requireAuth()) return;
       const bet = Number(minesBetInput.value);
       if (!Number.isFinite(bet) || bet < 1 || bet > balance) {
         minesError.textContent = balance <= 0 ? 'Пополни баланс для новой игры' : 'Введи ставку от 1 до размера баланса';
@@ -1832,12 +2121,23 @@
       minesRunning = true;
       minesBet = bet;
       minesCount = Math.max(1, Math.min(24, Math.round(Number(minesCountNumber.value) || 1)));
-      minesSet = chooseMinePositions(minesCount);
+      minesSet = new Set();
       minesOpened = new Set();
       minesMultiplier = 1;
-      balance = Math.round((balance - bet + Number.EPSILON) * 100) / 100;
       lockMinesControls(true);
-      updateBalance();
+
+      try {
+        const result = await callRpc('start_mines', { p_bet: bet, p_mine_count: minesCount });
+        minesRoundId = result.round_id;
+        balance = Number(result.balance);
+        updateBalance();
+      } catch (error) {
+        minesRunning = false;
+        lockMinesControls(false);
+        minesError.textContent = error.message;
+        await refreshProfile().catch(() => {});
+        return;
+      }
 
       minesGrid.querySelectorAll('.mine-cell').forEach(cell => {
         cell.disabled = false;
@@ -1947,11 +2247,12 @@
       spinButton.textContent = disabled ? 'КРУТИМ…' : 'КРУТИТЬ КОЛЕСО';
     }
 
-    function spin() {
+    async function spin() {
       if (spinning) return;
+      if (!requireAuth()) return;
       const bet = validBet();
       if (!bet) {
-        errorNode.textContent = balance <= 0 ? 'Начни заново, чтобы получить 1 000' : 'Введи ставку от 1 до размера баланса';
+        errorNode.textContent = balance <= 0 ? 'Пополни баланс для вращения' : 'Введи ставку от 1 до размера баланса';
         betInput.focus();
         return;
       }
@@ -1968,9 +2269,21 @@
       }
 
       currentChance = chance;
-      const landedAngle = randomAngle();
-      const won = landedAngle < chance * 3.6;
-      const payout = selectionMode === 'payout' ? desiredPayout : bet * 100 * PAYOUT_FACTOR / chance;
+      setControlsDisabled(true);
+      spinButton.textContent = 'ПРОВЕРЯЕМ СТАВКУ…';
+      let result;
+      try {
+        result = await callRpc('play_wheel', { p_bet: bet, p_chance: chance });
+      } catch (error) {
+        setControlsDisabled(false);
+        errorNode.textContent = error.message;
+        await refreshProfile().catch(() => {});
+        return;
+      }
+
+      const landedAngle = Number(result.landed_angle);
+      const won = Boolean(result.won);
+      const payout = Number(result.payout);
       const targetModulo = (360 - landedAngle) % 360;
       const currentModulo = ((rotation % 360) + 360) % 360;
       const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -1989,9 +2302,8 @@
       const easing = easingOptions[Math.floor(randomUnit() * easingOptions.length)];
       rotation += extraTurns * 360 + ((targetModulo - currentModulo + 360) % 360);
 
-      balance -= bet;
+      balance = Number(result.balance_after_bet);
       updateBalance();
-      setControlsDisabled(true);
       wheel.style.setProperty('--spin-duration', `${spinDuration}ms`);
       wheel.style.setProperty('--spin-easing', easing);
       wheel.style.transform = `rotate(${rotation}deg)`;
@@ -1999,9 +2311,8 @@
 
       window.setTimeout(() => {
         stopSpinSound();
-        if (won) balance += payout;
-        balance = Math.round((balance + Number.EPSILON) * 100) / 100;
-        const profit = payout - bet;
+        balance = Number(result.balance);
+        const profit = Number(result.profit);
         history.unshift({ won, bet, chance, profit });
         history = history.slice(0, 5);
         renderHistory();
@@ -2074,6 +2385,105 @@
       });
     });
 
+    document.querySelector('#loginTab').addEventListener('click', () => setAuthMode('login'));
+    document.querySelector('#registerTab').addEventListener('click', () => setAuthMode('register'));
+
+    loginForm.addEventListener('submit', async event => {
+      event.preventDefault();
+      const username = document.querySelector('#loginUsername').value.trim().toLowerCase();
+      const password = document.querySelector('#loginPassword').value;
+      const errorNode = document.querySelector('#loginError');
+      errorNode.textContent = '';
+      if (!usernamePattern.test(username) || !passwordPattern.test(password)) {
+        errorNode.textContent = 'Неверный логин или пароль';
+        return;
+      }
+      const button = loginForm.querySelector('button[type="submit"]');
+      button.disabled = true;
+      button.textContent = 'ВХОДИМ…';
+      const { data, error } = await supabaseClient.auth.signInWithPassword({ email: authEmail(username), password });
+      button.disabled = false;
+      button.textContent = 'ВОЙТИ';
+      if (error || !data.session) {
+        errorNode.textContent = 'Неверный логин или пароль';
+        return;
+      }
+      currentSession = data.session;
+      try {
+        await refreshProfile();
+        authModal.hidden = true;
+        showToast(true, `Добро пожаловать, ${currentProfile.username}`);
+      } catch (profileError) {
+        errorNode.textContent = profileError.message;
+      }
+    });
+
+    registerForm.addEventListener('submit', async event => {
+      event.preventDefault();
+      const username = document.querySelector('#registerUsername').value.trim().toLowerCase();
+      const password = document.querySelector('#registerPassword').value;
+      const errorNode = document.querySelector('#registerError');
+      errorNode.textContent = '';
+      if (!usernamePattern.test(username)) {
+        errorNode.textContent = 'Логин: 3–24 символа, только A–Z, 0–9, _ и -';
+        return;
+      }
+      if (!passwordPattern.test(password)) {
+        errorNode.textContent = 'Пароль: 8–72 обычных символа без пробелов и эмодзи';
+        return;
+      }
+      const button = registerForm.querySelector('button[type="submit"]');
+      button.disabled = true;
+      button.textContent = 'СОЗДАЁМ…';
+      const { data, error } = await supabaseClient.auth.signUp({
+        email: authEmail(username),
+        password,
+        options: { data: { username } }
+      });
+      button.disabled = false;
+      button.textContent = 'СОЗДАТЬ АККАУНТ';
+      if (error) {
+        errorNode.textContent = error.message.includes('already') ? 'Такой логин уже занят' : `Не удалось создать аккаунт: ${error.message}`;
+        return;
+      }
+      currentSession = data.session;
+      if (!currentSession) {
+        errorNode.textContent = 'В Supabase нужно отключить подтверждение email, затем повторить регистрацию.';
+        return;
+      }
+      await refreshProfile();
+      authModal.hidden = true;
+      showToast(true, `Аккаунт ${username} создан`);
+    });
+
+    accountOpen.addEventListener('click', async () => {
+      if (!requireAuth()) return;
+      await refreshProfile();
+      profileModal.hidden = false;
+    });
+    document.querySelector('#profileClose').addEventListener('click', () => profileModal.hidden = true);
+    document.querySelector('#logoutButton').addEventListener('click', async () => {
+      await supabaseClient.auth.signOut();
+      currentSession = null;
+      currentProfile = null;
+      balance = 0;
+      profileModal.hidden = true;
+      accountOpen.textContent = 'Войти';
+      updateBalance();
+      authModal.hidden = false;
+    });
+    document.querySelector('#changePassword').addEventListener('click', async () => {
+      const password = document.querySelector('#newPassword').value;
+      const errorNode = document.querySelector('#passwordError');
+      if (!passwordPattern.test(password)) {
+        errorNode.textContent = '8–72 обычных символа без пробелов и эмодзи';
+        return;
+      }
+      const { error } = await supabaseClient.auth.updateUser({ password });
+      errorNode.textContent = error ? error.message : 'Пароль успешно изменён';
+      if (!error) document.querySelector('#newPassword').value = '';
+    });
+
     gameTabs.forEach(tab => {
       tab.addEventListener('click', () => selectGame(tab.dataset.game));
     });
@@ -2122,7 +2532,9 @@
       else startMines();
     });
 
-    function openTopup() {
+    async function openTopup() {
+      if (!requireAuth()) return;
+      await refreshProfile();
       topupModal.hidden = false;
       topupError.textContent = '';
       topupAmount.value = '';
@@ -2135,30 +2547,28 @@
       document.body.style.overflow = '';
     }
 
-    function addFunds() {
+    async function addFunds() {
+      if (!requireAuth()) return;
       const amount = Number(topupAmount.value);
-      const nextBalance = balance + amount;
       if (!Number.isFinite(amount) || amount < 0.01) {
         topupError.textContent = 'Введи положительную сумму от 0,01';
         topupAmount.focus();
         return;
       }
-      if (!Number.isFinite(nextBalance)) {
-        topupError.textContent = 'Это уже слишком много даже для создателя';
-        topupAmount.focus();
-        return;
+      const button = document.querySelector('#topupConfirm');
+      button.disabled = true;
+      button.textContent = 'ДОБАВЛЯЕМ…';
+      try {
+        await callRpc('top_up', { p_amount: amount });
+        await refreshProfile();
+        closeTopup();
+        showToast(true, `Баланс пополнен на ${money(amount)}`);
+      } catch (error) {
+        topupError.textContent = error.message;
+      } finally {
+        button.disabled = false;
+        button.textContent = 'ДОБАВИТЬ НА БАЛАНС';
       }
-
-      balance = Math.abs(nextBalance) <= Number.MAX_SAFE_INTEGER / 100
-        ? Math.round((nextBalance + Number.EPSILON) * 100) / 100
-        : nextBalance;
-      updateBalance();
-      updatePreview();
-      updateRocketPreview();
-      updateSlotsPreview();
-      updateMinesPreview();
-      closeTopup();
-      showToast(true, `Баланс пополнен на ${money(amount)}`);
     }
 
     document.querySelector('#topupOpen').addEventListener('click', openTopup);
@@ -2176,24 +2586,63 @@
     topupModal.addEventListener('click', event => {
       if (event.target === topupModal) closeTopup();
     });
+
+    document.querySelector('#transferOpen').addEventListener('click', () => {
+      if (!requireAuth()) return;
+      document.querySelector('#transferError').textContent = '';
+      transferModal.hidden = false;
+    });
+    document.querySelector('#transferClose').addEventListener('click', () => transferModal.hidden = true);
+    document.querySelector('#transferConfirm').addEventListener('click', async () => {
+      const recipient = document.querySelector('#transferUsername').value.trim();
+      const amount = Number(document.querySelector('#transferAmount').value);
+      const errorNode = document.querySelector('#transferError');
+      if (!usernamePattern.test(recipient) || !Number.isFinite(amount) || amount < 0.01) {
+        errorNode.textContent = 'Проверь логин получателя и сумму';
+        return;
+      }
+      try {
+        await callRpc('transfer_coins', { p_recipient: recipient, p_amount: amount });
+        await refreshProfile();
+        transferModal.hidden = true;
+        showToast(true, `Переведено ${money(amount)} игроку ${recipient}`);
+      } catch (error) {
+        errorNode.textContent = error.message;
+      }
+    });
+
+    document.querySelector('#devCodeOpen').addEventListener('click', () => {
+      if (!requireAuth()) return;
+      document.querySelector('#devCodeError').textContent = '';
+      devCodeModal.hidden = false;
+    });
+    document.querySelector('#devCodeClose').addEventListener('click', () => devCodeModal.hidden = true);
+    document.querySelector('#devCodeConfirm').addEventListener('click', async () => {
+      const code = document.querySelector('#devCodeInput').value;
+      const errorNode = document.querySelector('#devCodeError');
+      try {
+        await callRpc('activate_dev_mode', { p_code: code });
+        await refreshProfile();
+        devCodeModal.hidden = true;
+        showToast(true, 'DEV-режим активирован: лимит отключён');
+      } catch (error) {
+        errorNode.textContent = 'Неверный код';
+      }
+    });
+
     document.addEventListener('keydown', event => {
       if (event.key === 'Escape' && !topupModal.hidden) closeTopup();
+      if (event.key === 'Escape') profileModal.hidden = transferModal.hidden = devCodeModal.hidden = true;
     });
 
     window.addEventListener('resize', enforceWheelCircle);
     window.addEventListener('orientationchange', enforceWheelCircle);
-    window.addEventListener('pagehide', saveBalance);
-    window.addEventListener('beforeunload', saveBalance);
-    document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'hidden') saveBalance();
-    });
     if ('ResizeObserver' in window) {
       new ResizeObserver(enforceWheelCircle).observe(wheelShell);
     }
 
     document.querySelector('#reset').addEventListener('click', () => {
       if (spinning || rocketRunning || slotsSpinning || minesRunning) return;
-      balance = START_BALANCE;
       history = [];
       rocketHistory = [];
       slotsHistory = [];
@@ -2222,7 +2671,7 @@
       updateRocketPreview();
       updateSlotsPreview();
       updateMinesPreview();
-      showToast(true, 'Новая игра: на балансе 1 000');
+      showToast(true, 'Локальная история очищена');
     });
 
     buildMinesGrid();
@@ -2232,6 +2681,7 @@
     updateRocketPreview();
     updateSlotsPreview();
     updateMinesPreview();
+    initializeAuth();
   </script>
 </body>
 </html>
