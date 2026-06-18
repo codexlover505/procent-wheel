@@ -133,6 +133,37 @@
       gap: 18px;
     }
 
+    .game-view[hidden] { display: none !important; }
+    .game-switch {
+      display: flex;
+      width: fit-content;
+      margin: 0 auto 18px;
+      padding: 5px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: rgba(15,18,27,.78);
+      backdrop-filter: blur(14px);
+    }
+    .game-tab {
+      min-width: 145px;
+      padding: 11px 18px;
+      border: 0;
+      border-radius: 11px;
+      color: var(--muted);
+      background: transparent;
+      font-size: 13px;
+      font-weight: 850;
+      cursor: pointer;
+      transition: .2s ease;
+    }
+    .game-tab:hover { color: var(--text); }
+    .game-tab[aria-selected="true"] {
+      color: #141908;
+      background: var(--accent);
+      box-shadow: 0 8px 22px rgba(190,255,82,.14);
+    }
+    .game-tab:disabled { cursor: not-allowed; opacity: .45; }
+
     .card {
       position: relative;
       border: 1px solid var(--line);
@@ -184,6 +215,7 @@
       position: relative;
       z-index: 2;
       --wheel-size: min(500px, 76vw);
+      --wheel-inset: 13px;
       width: var(--wheel-size);
       height: var(--wheel-size);
       min-width: 0;
@@ -191,15 +223,17 @@
       aspect-ratio: 1 / 1;
       flex: 0 0 auto;
       border-radius: 50%;
-      padding: 13px;
+      padding: var(--wheel-inset);
       background: linear-gradient(145deg, #363e4d, #151922 55%, #3a4251);
       box-shadow: 0 34px 70px rgba(0,0,0,.48), inset 0 0 0 1px rgba(255,255,255,.18);
     }
 
     .wheel {
-      position: relative;
-      width: 100%;
-      height: 100%;
+      position: absolute;
+      inset: var(--wheel-inset);
+      width: auto;
+      height: auto;
+      aspect-ratio: 1 / 1;
       border-radius: 50%;
       overflow: hidden;
       background:
@@ -464,6 +498,121 @@
     .spin-btn:active { transform: translateY(0); }
     .spin-btn:disabled { cursor: not-allowed; filter: grayscale(.55) brightness(.62); transform: none; }
 
+    .rocket-stage-card {
+      min-height: 650px;
+      overflow: hidden;
+      padding: 24px;
+    }
+    .rocket-stage {
+      position: relative;
+      width: 100%;
+      height: 600px;
+      overflow: hidden;
+      border: 1px solid rgba(122,104,255,.2);
+      border-radius: 22px;
+      background:
+        radial-gradient(circle at 18% 24%, rgba(255,255,255,.75) 0 1px, transparent 1.5px),
+        radial-gradient(circle at 72% 18%, rgba(255,255,255,.55) 0 1px, transparent 1.5px),
+        radial-gradient(circle at 42% 68%, rgba(255,255,255,.45) 0 1px, transparent 1.5px),
+        radial-gradient(circle at 88% 62%, rgba(255,255,255,.5) 0 1px, transparent 1.5px),
+        linear-gradient(155deg, #121127, #0b1020 55%, #09101b);
+      background-size: 120px 120px, 170px 170px, 140px 140px, 190px 190px, auto;
+      box-shadow: inset 0 0 80px rgba(83,63,255,.08);
+    }
+    .rocket-stage::after {
+      content: "";
+      position: absolute;
+      inset: auto 0 0;
+      height: 28%;
+      pointer-events: none;
+      background: linear-gradient(to top, rgba(97,244,200,.08), transparent);
+    }
+    .rocket-stage.crashed {
+      animation: crashFlash .4s ease;
+      border-color: rgba(255,89,100,.55);
+    }
+    @keyframes crashFlash {
+      0%, 100% { filter: none; }
+      45% { filter: brightness(1.65) saturate(1.4); }
+    }
+    .rocket-round-label {
+      position: absolute;
+      z-index: 3;
+      top: 20px;
+      left: 22px;
+      color: #777f94;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
+    .rocket-chart { position: absolute; z-index: 1; inset: 0; width: 100%; height: 100%; overflow: visible; }
+    .rocket-chart path {
+      fill: none;
+      stroke: url(#trailGradient);
+      stroke-width: 5;
+      stroke-linecap: round;
+      filter: drop-shadow(0 0 8px rgba(97,244,200,.5));
+    }
+    .rocket-readout {
+      position: absolute;
+      z-index: 4;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      pointer-events: none;
+    }
+    .rocket-multiplier {
+      font-size: clamp(52px, 8vw, 90px);
+      font-weight: 950;
+      letter-spacing: -.075em;
+      text-shadow: 0 10px 34px rgba(0,0,0,.42);
+    }
+    .rocket-status { margin-top: 6px; color: var(--muted); font-size: 13px; font-weight: 750; }
+    .rocket-sprite {
+      position: absolute;
+      z-index: 5;
+      left: 10%;
+      top: 78%;
+      transform: translate(-50%, -50%) rotate(-32deg);
+      font-size: 50px;
+      filter: drop-shadow(0 0 16px rgba(97,244,200,.35));
+      transition: opacity .15s ease;
+    }
+    .rocket-sprite.exploded { font-size: 58px; transform: translate(-50%, -50%) rotate(0); }
+    .rocket-info-box {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 15px 16px;
+      border: 1px solid rgba(122,104,255,.18);
+      border-radius: 15px;
+      background: rgba(122,104,255,.055);
+    }
+    .rocket-info-box span { color: var(--muted); font-size: 12px; }
+    .rocket-info-box strong { color: #a89bff; font-size: 20px; }
+    .rocket-action.running {
+      color: #101914;
+      background: linear-gradient(110deg, var(--accent-2), #75ffc4);
+      box-shadow: 0 14px 34px rgba(97,244,200,.2);
+    }
+    .rocket-history-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+    .rocket-history-chip {
+      min-width: 68px;
+      padding: 9px 11px;
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      color: var(--muted);
+      background: rgba(255,255,255,.025);
+      font-size: 12px;
+      font-weight: 850;
+      text-align: center;
+    }
+    .rocket-history-chip.win { color: var(--accent-2); border-color: rgba(97,244,200,.2); }
+    .rocket-history-chip.loss { color: #ff7d84; border-color: rgba(255,89,100,.18); }
+
     .error { min-height: 18px; margin: -16px 0 -12px; color: #ff8891; font-size: 12px; text-align: center; }
 
     .history-card {
@@ -585,12 +734,25 @@
       .card { border-radius: 22px; }
       .wheel-card { min-height: 445px; padding: 50px 14px 24px; }
       .pointer { top: 28px; width: 38px; height: 50px; }
-      .wheel-shell { --wheel-size: min(360px, 86vw); padding: 9px; }
+      .wheel-shell {
+        --wheel-size: min(360px, calc(100vw - 40px));
+        --wheel-inset: 9px;
+        width: var(--wheel-size) !important;
+        height: var(--wheel-size) !important;
+        max-width: 100%;
+        max-height: none;
+        padding: var(--wheel-inset);
+      }
       .hub { width: 112px; height: 112px; }
       .hub strong { font-size: 27px; }
       .wheel-legend { margin-top: 18px; }
       .controls-card { padding: 22px; gap: 23px; }
       .history-list { grid-template-columns: repeat(2, minmax(0,1fr)); }
+      .game-switch { width: 100%; }
+      .game-tab { flex: 1; min-width: 0; padding-inline: 8px; }
+      .rocket-stage-card { min-height: auto; padding: 10px; }
+      .rocket-stage { height: min(440px, 112vw); border-radius: 18px; }
+      .rocket-sprite { font-size: 42px; }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -612,7 +774,12 @@
       </div>
     </header>
 
-    <section class="game-grid">
+    <nav class="game-switch" aria-label="Выбор игры">
+      <button class="game-tab" type="button" data-game="wheel" aria-selected="true">◉ Колесо</button>
+      <button class="game-tab" type="button" data-game="rocket" aria-selected="false">🚀 Ракета</button>
+    </nav>
+
+    <section class="game-grid game-view" id="wheelGame">
       <article class="card wheel-card">
         <div class="pointer" aria-hidden="true"></div>
         <div class="wheel-shell">
@@ -697,6 +864,72 @@
         </div>
       </section>
     </section>
+
+    <section class="game-grid game-view" id="rocketGame" hidden>
+      <article class="card rocket-stage-card">
+        <div class="rocket-stage" id="rocketStage">
+          <div class="rocket-round-label">Crash · виртуальные коины</div>
+          <svg class="rocket-chart" viewBox="0 0 600 400" preserveAspectRatio="none" aria-hidden="true">
+            <defs>
+              <linearGradient id="trailGradient" x1="0" y1="1" x2="1" y2="0">
+                <stop offset="0" stop-color="#7868ff" stop-opacity=".1"/>
+                <stop offset="1" stop-color="#61f4c8"/>
+              </linearGradient>
+            </defs>
+            <path id="rocketTrail" d="M 40 360 Q 48 350, 60 340"/>
+          </svg>
+          <div class="rocket-readout">
+            <div class="rocket-multiplier" id="rocketMultiplier">1.00×</div>
+            <div class="rocket-status" id="rocketStatus">Готов к запуску</div>
+          </div>
+          <div class="rocket-sprite" id="rocketSprite" aria-hidden="true">🚀</div>
+        </div>
+      </article>
+
+      <aside class="card controls-card">
+        <div>
+          <p class="eyebrow">Crash-игра</p>
+          <h1>Успей забрать</h1>
+          <p class="subtitle">Множитель растёт до случайного взрыва. Забери коины раньше ракеты.</p>
+        </div>
+
+        <div>
+          <div class="field-head">
+            <label for="rocketBet">Ставка</label>
+            <span class="field-note">макс. <span id="rocketMaxBet">1 000</span></span>
+          </div>
+          <div class="money-input">
+            <span class="coin">₽</span>
+            <input id="rocketBet" type="number" min="1" max="1000" step="1" value="100" inputmode="numeric" aria-describedby="rocketError">
+          </div>
+          <div class="quick-bets rocket-quick-bets">
+            <button class="chip" data-rocket-bet="50">50</button>
+            <button class="chip" data-rocket-bet="100">100</button>
+            <button class="chip" data-rocket-action="half">½</button>
+            <button class="chip" data-rocket-action="all">Всё</button>
+          </div>
+        </div>
+
+        <div class="rocket-info-box">
+          <span>Если забрать на 2.00×</span>
+          <strong id="rocketPreview">200</strong>
+        </div>
+
+        <p class="error" id="rocketError" role="alert"></p>
+        <button class="spin-btn rocket-action" id="rocketAction" type="button">ЗАПУСТИТЬ РАКЕТУ</button>
+        <p class="subtitle">Точка взрыва случайно определяется до старта раунда.</p>
+      </aside>
+
+      <section class="card history-card">
+        <div class="history-head">
+          <h2>Последние полёты</h2>
+          <span class="field-note">множители взрыва</span>
+        </div>
+        <div class="rocket-history-list" id="rocketHistory">
+          <div class="empty">Первый запуск ещё впереди.</div>
+        </div>
+      </section>
+    </section>
     <p class="footer-note">Демо-игра на виртуальные монеты. Никаких реальных денег.</p>
   </main>
 
@@ -729,6 +962,7 @@
     const MAX_CHANCE = 80;
     const PAYOUT_FACTOR = 0.95;
     const wheel = document.querySelector('#wheel');
+    const wheelShell = document.querySelector('.wheel-shell');
     const chanceInput = document.querySelector('#chance');
     const chanceNumberInput = document.querySelector('#chanceNumber');
     const chanceNumberWrap = document.querySelector('#chanceNumberWrap');
@@ -748,6 +982,20 @@
     const errorNode = document.querySelector('#betError');
     const historyNode = document.querySelector('#history');
     const toast = document.querySelector('#toast');
+    const gameTabs = [...document.querySelectorAll('.game-tab')];
+    const wheelGame = document.querySelector('#wheelGame');
+    const rocketGame = document.querySelector('#rocketGame');
+    const rocketStage = document.querySelector('#rocketStage');
+    const rocketMultiplierNode = document.querySelector('#rocketMultiplier');
+    const rocketStatus = document.querySelector('#rocketStatus');
+    const rocketSprite = document.querySelector('#rocketSprite');
+    const rocketTrail = document.querySelector('#rocketTrail');
+    const rocketBetInput = document.querySelector('#rocketBet');
+    const rocketMaxBet = document.querySelector('#rocketMaxBet');
+    const rocketPreview = document.querySelector('#rocketPreview');
+    const rocketError = document.querySelector('#rocketError');
+    const rocketAction = document.querySelector('#rocketAction');
+    const rocketHistoryNode = document.querySelector('#rocketHistory');
 
     let balance = START_BALANCE;
     let rotation = 0;
@@ -762,6 +1010,14 @@
     let soundTickTimer;
     let audioContext;
     let activeSoundGain;
+    let circleResizeFrame;
+    let rocketRunning = false;
+    let rocketBet = 0;
+    let rocketCrashAt = 1;
+    let rocketMultiplier = 1;
+    let rocketStartTime = 0;
+    let rocketFrame;
+    let rocketHistory = [];
 
     const money = value => {
       const rounded = Math.abs(value) <= Number.MAX_SAFE_INTEGER / 100
@@ -789,6 +1045,16 @@
       const value = Number(payoutNode.value);
       return Number.isFinite(value) && value >= 0.01 ? value : null;
     };
+
+    function enforceWheelCircle() {
+      cancelAnimationFrame(circleResizeFrame);
+      circleResizeFrame = requestAnimationFrame(() => {
+        const renderedWidth = wheelShell.getBoundingClientRect().width;
+        if (renderedWidth > 0) {
+          wheelShell.style.setProperty('height', `${renderedWidth}px`, 'important');
+        }
+      });
+    }
 
     function syncChanceFromPayout() {
       const bet = Number(betInput.value);
@@ -851,13 +1117,23 @@
     function updateBalance() {
       balanceNode.textContent = money(balance);
       maxBetNode.textContent = money(balance);
+      rocketMaxBet.textContent = money(balance);
       betInput.max = balance;
+      rocketBetInput.max = balance;
       if (balance <= 0) {
         spinButton.disabled = true;
         spinButton.textContent = 'МОНЕТЫ ЗАКОНЧИЛИСЬ';
+        if (!rocketRunning) {
+          rocketAction.disabled = true;
+          rocketAction.textContent = 'МОНЕТЫ ЗАКОНЧИЛИСЬ';
+        }
       } else if (!spinning) {
         spinButton.disabled = false;
         spinButton.textContent = 'КРУТИТЬ КОЛЕСО';
+        if (!rocketRunning) {
+          rocketAction.disabled = false;
+          rocketAction.textContent = 'ЗАПУСТИТЬ РАКЕТУ';
+        }
       }
     }
 
@@ -871,6 +1147,148 @@
     }
 
     function randomAngle() { return randomUnit() * 360; }
+
+    function setGameTabsDisabled(disabled) {
+      gameTabs.forEach(tab => tab.disabled = disabled);
+    }
+
+    function selectGame(game) {
+      if (spinning || rocketRunning) return;
+      const showWheel = game === 'wheel';
+      wheelGame.hidden = !showWheel;
+      rocketGame.hidden = showWheel;
+      gameTabs.forEach(tab => tab.setAttribute('aria-selected', String(tab.dataset.game === game)));
+      if (showWheel) enforceWheelCircle();
+    }
+
+    function validRocketBet() {
+      const value = Number(rocketBetInput.value);
+      return Number.isFinite(value) && value >= 1 && value <= balance ? value : null;
+    }
+
+    function updateRocketPreview() {
+      const bet = Math.max(0, Number(rocketBetInput.value) || 0);
+      rocketPreview.textContent = money(bet * 2);
+      if (rocketBetInput.value !== '' && bet < 1) rocketError.textContent = 'Минимальная ставка — 1';
+      else if (bet > balance) rocketError.textContent = 'Ставка больше текущего баланса';
+      else rocketError.textContent = '';
+    }
+
+    function randomCrashMultiplier() {
+      const raw = 1 / (1 - randomUnit());
+      return Math.min(100, Math.max(1, Math.floor(raw * 100) / 100));
+    }
+
+    function drawRocketFlight(multiplier, elapsed = 0) {
+      const progress = Math.min(.92, .04 + Math.log(multiplier) / Math.log(20) * .84);
+      const x = 45 + progress * 520;
+      const y = 360 - progress * 300;
+      const controlX = 55 + (x - 55) * .52;
+      const controlY = 360 - (360 - y) * .18;
+
+      rocketMultiplierNode.textContent = `${multiplier.toFixed(2)}×`;
+      rocketSprite.style.left = `${x / 600 * 100}%`;
+      rocketSprite.style.top = `${y / 400 * 100}%`;
+      rocketTrail.setAttribute('d', `M 35 370 Q ${controlX.toFixed(1)} ${controlY.toFixed(1)}, ${x.toFixed(1)} ${y.toFixed(1)}`);
+      if (rocketRunning) rocketAction.textContent = `ЗАБРАТЬ ${money(rocketBet * multiplier)}`;
+    }
+
+    function renderRocketHistory() {
+      if (!rocketHistory.length) {
+        rocketHistoryNode.innerHTML = '<div class="empty">Первый запуск ещё впереди.</div>';
+        return;
+      }
+      rocketHistoryNode.innerHTML = rocketHistory.map(item => `
+        <div class="rocket-history-chip ${item.win ? 'win' : 'loss'}">
+          ${item.win ? '✓ ' : '💥 '}${item.value.toFixed(2)}×
+        </div>
+      `).join('');
+    }
+
+    function lockRocketControls(locked) {
+      rocketBetInput.disabled = locked;
+      document.querySelectorAll('.rocket-quick-bets .chip').forEach(button => button.disabled = locked);
+      setGameTabsDisabled(locked);
+    }
+
+    function finishRocketRound() {
+      rocketRunning = false;
+      cancelAnimationFrame(rocketFrame);
+      lockRocketControls(false);
+      rocketAction.classList.remove('running');
+      updateBalance();
+      updateRocketPreview();
+    }
+
+    function crashRocket() {
+      rocketMultiplier = rocketCrashAt;
+      drawRocketFlight(rocketMultiplier);
+      rocketStage.classList.add('crashed');
+      rocketSprite.textContent = '💥';
+      rocketSprite.classList.add('exploded');
+      rocketMultiplierNode.style.color = 'var(--danger)';
+      rocketStatus.textContent = `Взрыв на ${rocketCrashAt.toFixed(2)}×`;
+      rocketHistory.unshift({ win: false, value: rocketCrashAt });
+      rocketHistory = rocketHistory.slice(0, 12);
+      renderRocketHistory();
+      finishRocketRound();
+      showToast(false, `Ракета взорвалась на ${rocketCrashAt.toFixed(2)}×`);
+    }
+
+    function updateRocketFlight(now) {
+      if (!rocketRunning) return;
+      const elapsed = now - rocketStartTime;
+      rocketMultiplier = Math.exp(elapsed / 8500);
+      if (rocketMultiplier >= rocketCrashAt) {
+        crashRocket();
+        return;
+      }
+      drawRocketFlight(rocketMultiplier, elapsed);
+      rocketFrame = requestAnimationFrame(updateRocketFlight);
+    }
+
+    function startRocket() {
+      const bet = validRocketBet();
+      if (!bet) {
+        rocketError.textContent = balance <= 0 ? 'Пополни баланс для нового запуска' : 'Введи ставку от 1 до размера баланса';
+        rocketBetInput.focus();
+        return;
+      }
+
+      rocketRunning = true;
+      rocketBet = bet;
+      rocketCrashAt = randomCrashMultiplier();
+      rocketMultiplier = 1;
+      balance = Math.round((balance - bet + Number.EPSILON) * 100) / 100;
+      lockRocketControls(true);
+      updateBalance();
+
+      rocketStage.classList.remove('crashed');
+      rocketSprite.textContent = '🚀';
+      rocketSprite.classList.remove('exploded');
+      rocketMultiplierNode.style.color = '';
+      rocketStatus.textContent = 'Ракета набирает высоту…';
+      rocketAction.disabled = false;
+      rocketAction.classList.add('running');
+      drawRocketFlight(1);
+      rocketStartTime = performance.now();
+      rocketFrame = requestAnimationFrame(updateRocketFlight);
+    }
+
+    function cashOutRocket() {
+      if (!rocketRunning) return;
+      const cashedAt = rocketMultiplier;
+      const payout = Math.round((rocketBet * cashedAt + Number.EPSILON) * 100) / 100;
+      const profit = payout - rocketBet;
+      balance = Math.round((balance + payout + Number.EPSILON) * 100) / 100;
+      rocketStatus.textContent = `Забрано ${money(payout)} на ${cashedAt.toFixed(2)}×`;
+      rocketMultiplierNode.style.color = 'var(--accent-2)';
+      rocketHistory.unshift({ win: true, value: cashedAt });
+      rocketHistory = rocketHistory.slice(0, 12);
+      renderRocketHistory();
+      finishRocketRound();
+      showToast(true, `Ракета: чистый плюс ${money(profit)}`);
+    }
 
     function stopSpinSound() {
       clearTimeout(soundTickTimer);
@@ -961,7 +1379,8 @@
       chanceInput.disabled = disabled;
       chanceNumberInput.disabled = disabled;
       payoutNode.disabled = disabled;
-      document.querySelectorAll('.quick-bets .chip').forEach(button => button.disabled = disabled);
+      document.querySelectorAll('#wheelGame .quick-bets .chip').forEach(button => button.disabled = disabled);
+      setGameTabsDisabled(disabled);
       spinButton.disabled = disabled;
       spinButton.textContent = disabled ? 'КРУТИМ…' : 'КРУТИТЬ КОЛЕСО';
     }
@@ -1083,7 +1502,7 @@
       showToast(true, fastMode ? 'Быстрый режим: вращение займёт 2–3 секунды' : 'Обычный режим вращения');
     });
 
-    document.querySelectorAll('.quick-bets .chip').forEach(button => {
+    document.querySelectorAll('#wheelGame .quick-bets .chip').forEach(button => {
       button.addEventListener('click', () => {
         if (button.dataset.bet) betInput.value = Math.min(Number(button.dataset.bet), balance);
         if (button.dataset.action === 'half') betInput.value = Math.max(1, Math.floor(balance / 2));
@@ -1091,6 +1510,24 @@
         if (selectionMode === 'payout') syncChanceFromPayout();
         updatePreview();
       });
+    });
+
+    gameTabs.forEach(tab => {
+      tab.addEventListener('click', () => selectGame(tab.dataset.game));
+    });
+
+    rocketBetInput.addEventListener('input', updateRocketPreview);
+    document.querySelectorAll('.rocket-quick-bets .chip').forEach(button => {
+      button.addEventListener('click', () => {
+        if (button.dataset.rocketBet) rocketBetInput.value = Math.min(Number(button.dataset.rocketBet), balance);
+        if (button.dataset.rocketAction === 'half') rocketBetInput.value = Math.max(1, Math.floor(balance / 2));
+        if (button.dataset.rocketAction === 'all') rocketBetInput.value = balance;
+        updateRocketPreview();
+      });
+    });
+    rocketAction.addEventListener('click', () => {
+      if (rocketRunning) cashOutRocket();
+      else startRocket();
     });
 
     function openTopup() {
@@ -1125,6 +1562,7 @@
         : nextBalance;
       updateBalance();
       updatePreview();
+      updateRocketPreview();
       closeTopup();
       showToast(true, `Баланс пополнен на ${money(amount)}`);
     }
@@ -1148,11 +1586,19 @@
       if (event.key === 'Escape' && !topupModal.hidden) closeTopup();
     });
 
+    window.addEventListener('resize', enforceWheelCircle);
+    window.addEventListener('orientationchange', enforceWheelCircle);
+    if ('ResizeObserver' in window) {
+      new ResizeObserver(enforceWheelCircle).observe(wheelShell);
+    }
+
     document.querySelector('#reset').addEventListener('click', () => {
       if (spinning) return;
       balance = START_BALANCE;
       history = [];
+      rocketHistory = [];
       betInput.value = 100;
+      rocketBetInput.value = 100;
       chanceInput.value = 25;
       chanceNumberInput.value = 25;
       currentChance = 25;
@@ -1161,13 +1607,17 @@
       spinButton.disabled = false;
       spinButton.textContent = 'КРУТИТЬ КОЛЕСО';
       renderHistory();
+      renderRocketHistory();
       updateBalance();
       updatePreview();
+      updateRocketPreview();
       showToast(true, 'Новая игра: на балансе 1 000');
     });
 
+    enforceWheelCircle();
     updateBalance();
     updatePreview();
+    updateRocketPreview();
   </script>
 </body>
 </html>
