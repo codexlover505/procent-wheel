@@ -962,6 +962,7 @@
     const MAX_CHANCE = 80;
     const PAYOUT_FACTOR = 0.95;
     const STORAGE_KEY = 'procent-game-balance-v1';
+    const BALANCE_COOKIE = 'procent_game_balance';
     const wheel = document.querySelector('#wheel');
     const wheelShell = document.querySelector('.wheel-shell');
     const chanceInput = document.querySelector('#chance');
@@ -1001,18 +1002,25 @@
     function loadSavedBalance() {
       try {
         const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
-        return Number.isFinite(saved?.balance) && saved.balance >= 0 ? saved.balance : START_BALANCE;
-      } catch {
-        return START_BALANCE;
-      }
+        if (Number.isFinite(saved?.balance) && saved.balance >= 0) return saved.balance;
+      } catch {}
+
+      try {
+        const cookie = document.cookie.split('; ').find(item => item.startsWith(`${BALANCE_COOKIE}=`));
+        const cookieBalance = cookie ? Number(decodeURIComponent(cookie.split('=').slice(1).join('='))) : NaN;
+        if (Number.isFinite(cookieBalance) && cookieBalance >= 0) return cookieBalance;
+      } catch {}
+
+      return START_BALANCE;
     }
 
     function saveBalance() {
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify({ balance }));
-      } catch {
-        // Игра продолжает работать даже если браузер запретил локальное хранилище.
-      }
+      } catch {}
+      try {
+        document.cookie = `${BALANCE_COOKIE}=${encodeURIComponent(balance)}; max-age=31536000; path=/; SameSite=Lax`;
+      } catch {}
     }
 
     let balance = loadSavedBalance();
@@ -1265,7 +1273,7 @@
     function updateRocketFlight(now) {
       if (!rocketRunning) return;
       const elapsed = now - rocketStartTime;
-      rocketMultiplier = Math.exp(elapsed / 8500);
+      rocketMultiplier = Math.exp(elapsed / 10000);
       if (rocketMultiplier >= rocketCrashAt) {
         crashRocket();
         return;
@@ -1615,6 +1623,11 @@
 
     window.addEventListener('resize', enforceWheelCircle);
     window.addEventListener('orientationchange', enforceWheelCircle);
+    window.addEventListener('pagehide', saveBalance);
+    window.addEventListener('beforeunload', saveBalance);
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden') saveBalance();
+    });
     if ('ResizeObserver' in window) {
       new ResizeObserver(enforceWheelCircle).observe(wheelShell);
     }
