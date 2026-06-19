@@ -794,6 +794,9 @@
     .case-marker::before { top: 0; border-top-color: #fff; }
     .case-marker::after { bottom: 0; border-bottom-color: #fff; }
     .case-reel { display: flex; gap: 10px; width: max-content; transform: none; }
+    .case-reel.shuffle { width: 100%; }
+    .case-reel.shuffle .case-roll-item { flex: 1 1 0; min-width: 0; }
+    .case-reel.shuffle .case-roll-item:nth-child(2) { border-color: rgba(255,255,255,.36); background: linear-gradient(145deg, #293144, #171d2b); }
     .case-roll-item {
       flex: 0 0 124px;
       display: grid;
@@ -1675,7 +1678,6 @@
     let selectedCase = 'starter';
     let caseHistory = [];
     let caseTickTimer;
-    let caseAnimationFrame;
     let mysteryRunning = false;
     let mysteryHistory = [];
     let mysteryCycleTimer;
@@ -2529,8 +2531,9 @@
       renderCaseDrops();
       if (!casesOpening) {
         if (resetReel) {
-          cancelAnimationFrame(caseAnimationFrame);
+          clearInterval(caseTickTimer);
           caseReelWindow.scrollLeft = 0;
+          caseReel.classList.remove('shuffle');
           caseReel.innerHTML = config.drops.map(caseDropMarkup).join('');
           caseResult.className = 'case-result';
           caseResult.textContent = 'Выбери кейс и открой его';
@@ -2541,29 +2544,29 @@
       }
     }
 
-    function buildCaseReel(config, winningDrop) {
-      const winningIndex = 23;
-      const items = Array.from({ length: 29 }, (_, index) => index === winningIndex ? winningDrop : randomVisualCaseDrop(config));
+    function drawCaseShuffle(config, winningDrop = null) {
+      caseReelWindow.scrollLeft = 0;
+      caseReel.classList.add('shuffle');
+      const items = [
+        randomVisualCaseDrop(config),
+        winningDrop || randomVisualCaseDrop(config),
+        randomVisualCaseDrop(config)
+      ];
       caseReel.innerHTML = items.map(caseDropMarkup).join('');
-      return winningIndex;
     }
 
-    function animateCaseReel(winningIndex, duration = 4200) {
-      cancelAnimationFrame(caseAnimationFrame);
-      caseReelWindow.scrollLeft = 0;
-      const item = caseReel.children[winningIndex];
-      const itemWidth = item.getBoundingClientRect().width;
-      const itemOffset = item.getBoundingClientRect().left - caseReel.getBoundingClientRect().left;
-      const jitter = (randomUnit() - .5) * itemWidth * .48;
-      const target = itemOffset + itemWidth / 2 - caseReelWindow.clientWidth / 2 + jitter;
-      const startedAt = performance.now();
-      const step = now => {
-        const progress = Math.min(1, (now - startedAt) / duration);
-        const eased = 1 - Math.pow(1 - progress, 4.2);
-        caseReelWindow.scrollLeft = target * eased;
-        if (progress < 1) caseAnimationFrame = requestAnimationFrame(step);
-      };
-      caseAnimationFrame = requestAnimationFrame(step);
+    function startCaseShuffle(config) {
+      clearInterval(caseTickTimer);
+      drawCaseShuffle(config);
+      caseTickTimer = setInterval(() => {
+        drawCaseShuffle(config);
+        playSlotTick();
+      }, 140);
+    }
+
+    function finishCaseShuffle(config, winningDrop) {
+      clearInterval(caseTickTimer);
+      drawCaseShuffle(config, winningDrop);
     }
 
     async function openSelectedCase() {
@@ -2597,14 +2600,10 @@
       balance = Number(result.balance_after_cost);
       updateBalance();
       const winningDrop = config.drops.find(drop => drop.amount === Number(result.prize)) || config.drops[0];
-      const winningIndex = buildCaseReel(config, winningDrop);
-      animateCaseReel(winningIndex);
-      playMysteryRollSound(4.2);
-      clearInterval(caseTickTimer);
-      caseTickTimer = setInterval(playSlotTick, 115);
+      startCaseShuffle(config);
 
       window.setTimeout(() => {
-        clearInterval(caseTickTimer);
+        finishCaseShuffle(config, winningDrop);
         balance = Number(result.balance);
         caseHistory.unshift({ title: config.title, icon: winningDrop.icon, prize: Number(result.prize), cost: config.cost });
         caseHistory = caseHistory.slice(0, 12);
@@ -2617,7 +2616,7 @@
         updateBalance();
         updateCaseView();
         showToast(Number(result.prize) >= config.cost, `Кейс: выпало ${money(result.prize)} коинов`);
-      }, 4350);
+      }, 2950);
     }
 
     const formatMultiplier = value => Number(value).toLocaleString('ru-RU', { maximumFractionDigits: 2 });
