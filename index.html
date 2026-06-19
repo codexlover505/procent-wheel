@@ -818,6 +818,9 @@
     .tier-mythic { border-bottom-color: #ffd45f; box-shadow: 0 0 22px rgba(255,212,95,.12); }
     .case-result { min-height: 26px; margin-top: 18px; color: var(--muted); font-size: 15px; font-weight: 850; text-align: center; }
     .case-result.win { color: #ffd45f; }
+    .case-batch-results { display: flex; flex-wrap: wrap; justify-content: center; gap: 7px; margin-top: 10px; }
+    .case-batch-prize { padding: 7px 9px; border: 1px solid var(--line); border-radius: 9px; color: var(--muted); background: rgba(255,255,255,.025); font-size: 11px; font-weight: 850; }
+    .case-batch-prize.win { color: var(--accent-2); border-color: rgba(97,244,200,.25); }
     .case-selector { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 9px; }
     .case-option {
       padding: 12px;
@@ -1376,6 +1379,7 @@
             </div>
           </div>
           <div class="case-result" id="caseResult">Выбери кейс и открой его</div>
+          <div class="case-batch-results" id="caseBatchResults"></div>
         </div>
       </article>
 
@@ -1390,6 +1394,19 @@
           <button class="case-option" type="button" data-case="neon"><span>💠 Неоновый</span><strong>1 000</strong></button>
           <button class="case-option" type="button" data-case="elite"><span>👑 Элитный</span><strong>10 000</strong></button>
           <button class="case-option" type="button" data-case="legend"><span>🔥 Легенда</span><strong>100 000</strong></button>
+        </div>
+        <div>
+          <div class="field-head"><label for="caseCount">Количество кейсов</label><output class="chance-value" id="caseCountValue">1</output></div>
+          <div class="mine-count-row">
+            <input id="caseCount" type="range" min="1" max="10" step="1" value="1">
+            <div class="chance-number-input mine-count-input"><input id="caseCountNumber" type="number" min="1" max="10" step="1" value="1" inputmode="numeric"><span>шт.</span></div>
+          </div>
+          <div class="quick-bets case-count-presets">
+            <button class="chip" type="button" data-case-count="1">1</button>
+            <button class="chip" type="button" data-case-count="3">3</button>
+            <button class="chip" type="button" data-case-count="5">5</button>
+            <button class="chip" type="button" data-case-count="10">10</button>
+          </div>
         </div>
         <div>
           <div class="field-head"><label>Что может выпасть</label><span class="field-note">шанс</span></div>
@@ -1619,6 +1636,10 @@
     const caseTitle = document.querySelector('#caseTitle');
     const caseStagePrice = document.querySelector('#caseStagePrice');
     const caseResult = document.querySelector('#caseResult');
+    const caseBatchResults = document.querySelector('#caseBatchResults');
+    const caseCountInput = document.querySelector('#caseCount');
+    const caseCountNumber = document.querySelector('#caseCountNumber');
+    const caseCountValue = document.querySelector('#caseCountValue');
     const caseError = document.querySelector('#caseError');
     const caseAction = document.querySelector('#caseAction');
     const caseHistoryNode = document.querySelector('#caseHistory');
@@ -1676,6 +1697,7 @@
     let minesHistory = [];
     let casesOpening = false;
     let selectedCase = 'starter';
+    let caseCount = 1;
     let caseHistory = [];
     let caseTickTimer;
     let mysteryRunning = false;
@@ -2509,6 +2531,20 @@
       `).join('');
     }
 
+    function caseWord(count) {
+      if (count === 1) return 'КЕЙС';
+      if (count >= 2 && count <= 4) return 'КЕЙСА';
+      return 'КЕЙСОВ';
+    }
+
+    function setCaseCount(value) {
+      caseCount = Math.max(1, Math.min(10, Math.round(Number(value) || 1)));
+      caseCountInput.value = caseCount;
+      caseCountNumber.value = caseCount;
+      caseCountValue.textContent = caseCount;
+      updateCaseView();
+    }
+
     function renderCaseHistory() {
       if (!caseHistory.length) {
         caseHistoryNode.innerHTML = '<div class="empty">Кейсы ещё не открывались.</div>';
@@ -2521,6 +2557,7 @@
 
     function updateCaseView(resetReel = false) {
       const config = CASES[selectedCase];
+      const totalCost = config.cost * caseCount;
       caseIcon.textContent = config.icon;
       caseTitle.textContent = config.title;
       caseStagePrice.textContent = money(config.cost);
@@ -2528,6 +2565,9 @@
         button.classList.toggle('active', button.dataset.case === selectedCase);
         button.disabled = casesOpening;
       });
+      caseCountInput.disabled = casesOpening;
+      caseCountNumber.disabled = casesOpening;
+      document.querySelectorAll('.case-count-presets .chip').forEach(button => button.disabled = casesOpening);
       renderCaseDrops();
       if (!casesOpening) {
         if (resetReel) {
@@ -2537,10 +2577,11 @@
           caseReel.innerHTML = config.drops.map(caseDropMarkup).join('');
           caseResult.className = 'case-result';
           caseResult.textContent = 'Выбери кейс и открой его';
+          caseBatchResults.innerHTML = '';
         }
-        caseAction.textContent = `ОТКРЫТЬ ЗА ${money(config.cost)}`;
-        caseAction.disabled = config.cost > balance;
-        caseError.textContent = config.cost > balance ? `Не хватает ${money(config.cost - balance)} коинов` : '';
+        caseAction.textContent = `ОТКРЫТЬ ${caseCount} ${caseWord(caseCount)} ЗА ${money(totalCost)}`;
+        caseAction.disabled = totalCost > balance;
+        caseError.textContent = totalCost > balance ? `Не хватает ${money(totalCost - balance)} коинов` : '';
       }
     }
 
@@ -2572,22 +2613,28 @@
     async function openSelectedCase() {
       if (casesOpening || !requireAuth()) return;
       const config = CASES[selectedCase];
-      if (config.cost > balance) {
-        caseError.textContent = `Для этого кейса нужно ${money(config.cost)} коинов`;
+      const count = caseCount;
+      const totalCost = config.cost * count;
+      if (totalCost > balance) {
+        caseError.textContent = `Для ${count} ${caseWord(count).toLowerCase()} нужно ${money(totalCost)} коинов`;
         return;
       }
       casesOpening = true;
       caseError.textContent = '';
       caseResult.className = 'case-result';
-      caseResult.textContent = 'Кейс открывается…';
+      caseResult.textContent = `${count} ${caseWord(count).toLowerCase()} открываются…`;
+      caseBatchResults.innerHTML = '';
       caseAction.disabled = true;
       caseAction.textContent = 'ОТКРЫВАЕМ…';
       caseSelector.querySelectorAll('.case-option').forEach(button => button.disabled = true);
+      caseCountInput.disabled = true;
+      caseCountNumber.disabled = true;
+      document.querySelectorAll('.case-count-presets .chip').forEach(button => button.disabled = true);
       setGameTabsDisabled(true);
 
       let result;
       try {
-        result = await callRpc('open_case', { p_case_key: selectedCase });
+        result = await callRpc('open_case', { p_case_key: selectedCase, p_case_count: count });
       } catch (error) {
         casesOpening = false;
         setGameTabsDisabled(false);
@@ -2599,23 +2646,32 @@
 
       balance = Number(result.balance_after_cost);
       updateBalance();
-      const winningDrop = config.drops.find(drop => drop.amount === Number(result.prize)) || config.drops[0];
+      const prizes = (result.prizes || []).map(Number);
+      const winningDrops = prizes.map(prize => config.drops.find(drop => drop.amount === prize) || config.drops[0]);
+      const winningDrop = winningDrops.reduce((best, drop) => drop.amount > best.amount ? drop : best, winningDrops[0]);
       startCaseShuffle(config);
 
       window.setTimeout(() => {
         finishCaseShuffle(config, winningDrop);
         balance = Number(result.balance);
-        caseHistory.unshift({ title: config.title, icon: winningDrop.icon, prize: Number(result.prize), cost: config.cost });
-        caseHistory = caseHistory.slice(0, 12);
+        caseHistory = [
+          ...winningDrops.map(drop => ({ title: config.title, icon: drop.icon, prize: drop.amount, cost: config.cost })),
+          ...caseHistory
+        ].slice(0, 12);
         renderCaseHistory();
         casesOpening = false;
         setGameTabsDisabled(false);
-        caseResult.className = `case-result ${Number(result.prize) >= config.cost ? 'win' : ''}`;
-        caseResult.textContent = `Выпало ${money(result.prize)} коинов`;
+        const totalPrize = Number(result.total_prize);
+        const batchWon = totalPrize >= totalCost;
+        caseResult.className = `case-result ${batchWon ? 'win' : ''}`;
+        caseResult.textContent = `${count} ${caseWord(count).toLowerCase()} · получено ${money(totalPrize)} коинов`;
+        caseBatchResults.innerHTML = winningDrops.map(drop => `
+          <span class="case-batch-prize ${drop.amount >= config.cost ? 'win' : ''}">${drop.icon} ${money(drop.amount)}</span>
+        `).join('');
         playSafeCellSound();
         updateBalance();
         updateCaseView();
-        showToast(Number(result.prize) >= config.cost, `Кейс: выпало ${money(result.prize)} коинов`);
+        showToast(batchWon, `Кейсы: получено ${money(totalPrize)} коинов`);
       }, 2950);
     }
 
@@ -3283,6 +3339,12 @@
       selectedCase = button.dataset.case;
       updateCaseView(true);
     });
+    caseCountInput.addEventListener('input', () => setCaseCount(caseCountInput.value));
+    caseCountNumber.addEventListener('input', () => setCaseCount(caseCountNumber.value));
+    caseCountNumber.addEventListener('blur', () => setCaseCount(caseCountNumber.value));
+    document.querySelectorAll('.case-count-presets .chip').forEach(button => {
+      button.addEventListener('click', () => setCaseCount(button.dataset.caseCount));
+    });
     caseAction.addEventListener('click', openSelectedCase);
 
     mysteryBetInput.addEventListener('input', updateMysteryPreview);
@@ -3420,6 +3482,7 @@
       minesCountInput.value = 5;
       minesCountNumber.value = 5;
       minesCount = 5;
+      setCaseCount(1);
       chanceInput.value = 25;
       chanceNumberInput.value = 25;
       currentChance = 25;
